@@ -34,7 +34,7 @@ java {
 
 application {
     // Define the main class for the application.
-    mainClass = "io.numberun.App"
+    mainClass = "io.numberrun.App"
 }
 
 tasks.named<Test>("test") {
