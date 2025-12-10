@@ -5,9 +5,10 @@ package io.numberrun;
 
 import io.numberrun.Component.Transform;
 import io.numberrun.Component.Velocity;
+import io.numberrun.System.Entity;
+import io.numberrun.System.World;
 import io.numberrun.Component.Rectangle;
-import io.numberrun.Game.Entity;
-import io.numberrun.Game.World;
+
 import org.junit.jupiter.api.Test;
 
 import java.awt.Color;

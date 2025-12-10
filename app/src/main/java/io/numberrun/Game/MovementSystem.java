@@ -1,13 +1,13 @@
-package io.numberrun.System;
-
-import io.numberrun.Component.Transform;
-import io.numberrun.Component.Velocity;
-import io.numberrun.Game.Entity;
-import io.numberrun.Game.GameSystem;
-import io.numberrun.Game.World;
+package io.numberrun.Game;
 
 import java.util.List;
 import java.util.Optional;
+
+import io.numberrun.Component.Transform;
+import io.numberrun.Component.Velocity;
+import io.numberrun.System.Entity;
+import io.numberrun.System.GameSystem;
+import io.numberrun.System.World;
 
 /**
  * 速度に基づいてエンティティを移動するシステム

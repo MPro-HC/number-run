@@ -1,11 +1,4 @@
-package io.numberrun.Game;
-
-import io.numberrun.Component.Component;
-import io.numberrun.Component.Renderable;
-import io.numberrun.Component.Transform;
-import io.numberrun.UI.Graphics;
-import io.numberrun.UI.InputEvent;
-import io.numberrun.UI.InputState;
+package io.numberrun.System;
 
 import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
@@ -13,6 +6,13 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import io.numberrun.Component.Component;
+import io.numberrun.Component.Renderable;
+import io.numberrun.Component.Transform;
+import io.numberrun.UI.Graphics;
+import io.numberrun.UI.InputEvent;
+import io.numberrun.UI.InputState;
 
 /**
  * ゲームワールド エンティティとシステムを管理する

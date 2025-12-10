@@ -1,4 +1,4 @@
-package io.numberrun.Game;
+package io.numberrun.System;
 
 import io.numberrun.UI.InputEvent;
 import io.numberrun.UI.InputState;

@@ -1,15 +1,24 @@
 package io.numberrun.Core;
 
-import io.numberrun.Game.World;
+import java.awt.Canvas;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.image.BufferStrategy;
+
+import javax.swing.JFrame;
+
+import io.numberrun.System.World;
 import io.numberrun.UI.Graphics;
 import io.numberrun.UI.InputEvent;
 import io.numberrun.UI.InputState;
 import io.numberrun.UI.InputType;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.image.BufferStrategy;
 
 /**
  * ゲームエンジンのメインクラス Swingをラップしてゲームループを提供する

@@ -1,9 +1,10 @@
-package io.numberrun.Game;
+package io.numberrun.System;
 
-import io.numberrun.Component.Component;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+
+import io.numberrun.Component.Component;
 
 /**
  * 全てのゲーム要素は Entity として扱う Entity はコンポーネントのコンテナとして機能する
