@@ -112,6 +112,8 @@ public class GameEngine {
 
         canvas.createBufferStrategy(2);
         bufferStrategy = canvas.getBufferStrategy();
+
+        this.world.setGlobalFrame(frame);
     }
 
     private void setupInputHandlers() {

@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.swing.JFrame;
+
 import io.numberrun.Component.Component;
 import io.numberrun.Component.Renderable;
 import io.numberrun.Component.Transform;
@@ -23,6 +25,8 @@ public class World {
     private final List<Entity> entitiesToAdd = new ArrayList<>();
     private final List<GameSystem> systems = new ArrayList<>();
     private boolean systemsSorted = false;
+
+    private JFrame globalFrame;
 
     /**
      * 新しいエンティティを生成
@@ -180,5 +184,16 @@ public class World {
         for (GameSystem system : systems) {
             system.onStop(this);
         }
+    }
+
+    /**
+     * Swing にアクセスしたい時用
+     */
+    public void setGlobalFrame(JFrame frame) {
+        this.globalFrame = frame;
+    }
+
+    public JFrame getGlobalFrame() {
+        return this.globalFrame;
     }
 }
