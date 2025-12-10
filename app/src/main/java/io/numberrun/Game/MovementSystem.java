@@ -7,6 +7,7 @@ import io.numberrun.Component.Transform;
 import io.numberrun.Component.Velocity;
 import io.numberrun.System.Entity;
 import io.numberrun.System.GameSystem;
+import io.numberrun.System.SystemPriority;
 import io.numberrun.System.World;
 
 /**
@@ -16,7 +17,7 @@ public class MovementSystem implements GameSystem {
 
     @Override
     public int getPriority() {
-        return 100; // 他のシステムより後に実行
+        return SystemPriority.LOW.getPriority(); // 他のシステムより後に実行
     }
 
     @Override
