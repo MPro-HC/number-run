@@ -81,6 +81,13 @@ public class Graphics {
     }
 
     /**
+     * 画像を描画
+     */
+    public void drawImage(java.awt.Image image, float x, float y, float width, float height) {
+        g2d.drawImage(image, (int) x, (int) y, (int) width, (int) height, null);
+    }
+
+    /**
      * 変換を適用（移動、回転、スケール）
      */
     public void transform(float x, float y, float rotation, float scaleX, float scaleY) {
