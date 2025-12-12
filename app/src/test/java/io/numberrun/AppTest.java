@@ -3,14 +3,75 @@
  */
 package io.numberrun;
 
+import io.numberrun.Component.Transform;
+import io.numberrun.Component.Velocity;
+import io.numberrun.System.Entity;
+import io.numberrun.System.World;
+import io.numberrun.Component.Rectangle;
+
 import org.junit.jupiter.api.Test;
+
+import java.awt.Color;
+import java.util.List;
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class AppTest {
 
     @Test
-    void appHasAGreeting() {
-        App classUnderTest = new App();
-        assertNotNull(classUnderTest.getGreeting(), "app should have a greeting");
+    void entityCanAddAndRetrieveComponents() {
+        Entity entity = new Entity();
+        Transform transform = new Transform(100, 200);
+
+        entity.addComponent(transform);
+
+        Optional<Transform> retrieved = entity.getComponent(Transform.class);
+        assertTrue(retrieved.isPresent());
+        assertEquals(100, retrieved.get().getX());
+        assertEquals(200, retrieved.get().getY());
+    }
+
+    @Test
+    void entityHasComponentReturnsTrueWhenPresent() {
+        Entity entity = new Entity();
+        entity.addComponent(new Transform());
+
+        assertTrue(entity.hasComponent(Transform.class));
+        assertFalse(entity.hasComponent(Velocity.class));
+    }
+
+    @Test
+    void worldCanSpawnEntitiesWithComponents() {
+        World world = new World();
+
+        Entity entity = world.spawn(
+                new Transform(50, 50),
+                new Rectangle(10, 10, Color.RED)
+        );
+
+        assertNotNull(entity);
+        assertTrue(entity.hasComponent(Transform.class));
+        assertTrue(entity.hasComponent(Rectangle.class));
+    }
+
+    @Test
+    void worldQueryReturnsEntitiesWithMatchingComponents() {
+        World world = new World();
+
+        // Transformのみを持つエンティティ
+        world.spawn(new Transform(0, 0));
+
+        // TransformとVelocityを持つエンティティ
+        world.spawn(new Transform(100, 100), new Velocity(1, 1));
+
+        // 最初のupdateでエンティティが追加される
+        world.update(0.016f);
+
+        List<Entity> withTransform = world.query(Transform.class);
+        assertEquals(2, withTransform.size());
+
+        List<Entity> withBoth = world.query(Transform.class, Velocity.class);
+        assertEquals(1, withBoth.size());
     }
 }
