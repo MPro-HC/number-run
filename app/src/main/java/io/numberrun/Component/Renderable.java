@@ -22,4 +22,12 @@ public interface Renderable extends Component {
     default int getZOrder() {
         return 0;
     }
+
+    default float getWidth() {
+        return 0;
+    }
+
+    default float getHeight() {
+        return 0;
+    }
 }

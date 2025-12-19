@@ -52,8 +52,19 @@ public class Image implements Renderable {
 
     @Override
     public void render(Graphics g) {
-        g.drawImage(image, 0, 0,
-                width.orElse((float) image.getWidth(null)),
-                height.orElse((float) image.getHeight(null)));
+        float w = width.orElse((float) image.getWidth(null));
+        float h = height.orElse((float) image.getHeight(null));
+        // 中心原点で描画
+        g.drawImage(image, -w / 2, -h / 2, w, h);
+    }
+
+    @Override
+    public float getWidth() {
+        return width.orElse((float) image.getWidth(null));
+    }
+
+    @Override
+    public float getHeight() {
+        return height.orElse((float) image.getHeight(null));
     }
 }

@@ -1,7 +1,10 @@
 package io.numberrun.Component;
 
+import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
+
 import io.numberrun.UI.Graphics;
 
 /**
@@ -13,6 +16,7 @@ public class Text implements Renderable {
     private Color color;
     private Font font;
     private int zOrder;
+    private boolean isCentered = true;
 
     public Text(String text, Color color) {
         this(text, color, new Font("SansSerif", Font.PLAIN, 14), 0);
@@ -31,12 +35,30 @@ public class Text implements Renderable {
 
     @Override
     public void render(Graphics g) {
-        g.drawText(text, 0, 0, color, font);
+        if (this.isCentered) {
+            g.drawTextCentered(text, 0, 0, color, font);
+        } else {
+            g.drawText(text, 0, 0, color, font);
+        }
     }
 
     @Override
     public int getZOrder() {
         return zOrder;
+    }
+
+    @Override
+    public float getWidth() {
+        // フォントメトリクスを使用して高さを取得
+        FontMetrics metrics = new Canvas().getFontMetrics(font);
+        return metrics.stringWidth(text);
+    }
+
+    @Override
+    public float getHeight() {
+        // フォントメトリクスを使用して高さを取得
+        FontMetrics metrics = new Canvas().getFontMetrics(font);
+        return metrics.getHeight();
     }
 
     public String getText() {
@@ -61,6 +83,10 @@ public class Text implements Renderable {
 
     public void setFont(Font font) {
         this.font = font;
+    }
+
+    public void setIsCentered(boolean isCentered) {
+        this.isCentered = isCentered;
     }
 
     public void setZOrder(int zOrder) {

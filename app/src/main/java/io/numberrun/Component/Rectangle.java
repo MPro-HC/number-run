@@ -1,6 +1,7 @@
 package io.numberrun.Component;
 
 import java.awt.Color;
+
 import io.numberrun.UI.Graphics;
 
 /**
@@ -44,6 +45,7 @@ public class Rectangle implements Renderable {
         return zOrder;
     }
 
+    @Override
     public float getWidth() {
         return width;
     }
@@ -52,6 +54,7 @@ public class Rectangle implements Renderable {
         this.width = width;
     }
 
+    @Override
     public float getHeight() {
         return height;
     }
