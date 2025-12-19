@@ -1,5 +1,7 @@
-package io.numberrun.Game;
+package io.numberrun.Game.Player;
+
 import io.numberrun.Component.Component;
+
 /**
  * キャラクターの「人数」や「強さ」を表すデータ
  */
