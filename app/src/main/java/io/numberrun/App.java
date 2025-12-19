@@ -3,10 +3,13 @@ package io.numberrun;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.KeyEvent;
+import java.util.List;
 
+import io.numberrun.Component.Circle;
 import io.numberrun.Component.Image;
 import io.numberrun.Component.Rectangle;
 import io.numberrun.Component.Text;
+import io.numberrun.Component.Timer;
 import io.numberrun.Component.Transform;
 import io.numberrun.Component.Velocity;
 import io.numberrun.Core.GameEngine;
@@ -62,6 +65,36 @@ class PlayerMovementSystem implements GameSystem {
             });
 
         }
+    }
+}
+
+/**
+ * タイマーを使用した一定時間ごとに処理する例
+ */
+class PulseCircleSystem implements GameSystem {
+
+    @Override
+    public void update(World world, float deltaTime) {
+        List<Entity> circles = world.query(Circle.class, Timer.class);
+
+        for (Entity entity : circles) {
+
+            entity.getComponent(Timer.class).ifPresent(timer -> {
+                timer.tick(deltaTime * 1000); // deltaTime is in seconds, convert to milliseconds
+                if (timer.justCompleted()) {
+                    // タイマーが終了したら円の色を変えるなどの処理を行う
+                    entity.getComponent(Circle.class).ifPresent(circle -> {
+                        circle.setColor(new Color(
+                                (int) (Math.random() * 256),
+                                (int) (Math.random() * 256),
+                                (int) (Math.random() * 256)
+                        ));
+
+                    });
+                }
+            });
+        }
+
     }
 }
 
@@ -136,13 +169,23 @@ public class App {
             );
         }
 
+        {
+            // 1秒ごとに色が変わる円
+            world.spawn(
+                    new Transform(200, 0),
+                    new Circle(40, Color.ORANGE),
+                    new Timer(1_000, Timer.TimerMode.Loop)
+            );
+        }
+
         // システムの追加
         // ゲームロジックはシステムとして扱う (これが Controller)
         world.addSystems(
                 new PlayerMovementSystem(), // プレイヤー操作 (キーが入力された時に速度を適用する)
                 new MovementSystem(), // 移動（Velocity を Transform に反映する）
                 new GlobalCursorSystem(), // グローバルなマウス位置を取得するシステムを追加
-                new CursorSystem() // 長方形がカーソルをトラッキングするように
+                new CursorSystem(), // 長方形がカーソルをトラッキングするように
+                new PulseCircleSystem() // 円の色を変えるシステム
         );
 
         // ゲーム開始
