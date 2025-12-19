@@ -14,6 +14,7 @@ import io.numberrun.Game.Cursor.CursorView;
 import io.numberrun.Game.Gate.GateSystem;
 import io.numberrun.Game.GlobalCursor.GlobalCursorModel;
 import io.numberrun.Game.GlobalCursor.GlobalCursorSystem;
+import io.numberrun.Game.Stage.StageSystem;
 import io.numberrun.Game.MovementSystem;
 import io.numberrun.System.Entity;
 import io.numberrun.System.GameSystem;
@@ -126,7 +127,8 @@ public class App {
                 new MovementSystem(), // 移動（Velocity を Transform に反映する）
                 new GlobalCursorSystem(), // グローバルなマウス位置を取得するシステムを追加
                 new CursorSystem(), // 長方形がカーソルをトラッキングするように
-				new GateSystem()
+				new GateSystem(),
+				new StageSystem()
 			);
 
         // ゲーム開始
