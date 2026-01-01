@@ -1,24 +1,17 @@
 package io.numberrun;
 
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.event.KeyEvent;
 import java.util.List;
 
 import io.numberrun.Component.Circle;
 import io.numberrun.Component.Image;
-import io.numberrun.Component.Rectangle;
-import io.numberrun.Component.Text;
 import io.numberrun.Component.Timer;
 import io.numberrun.Component.Transform;
 import io.numberrun.Component.Velocity;
 import io.numberrun.Core.GameEngine;
-import io.numberrun.Game.Cursor.CursorSystem;
-import io.numberrun.Game.Cursor.CursorView;
-import io.numberrun.Game.GlobalCursor.GlobalCursorModel;
 import io.numberrun.Game.GlobalCursor.GlobalCursorSystem;
 import io.numberrun.Game.Lane.LaneView;
-import io.numberrun.Game.MovementSystem;
 import io.numberrun.System.Entity;
 import io.numberrun.System.GameSystem;
 import io.numberrun.System.World;
@@ -100,9 +93,8 @@ class PulseCircleSystem implements GameSystem {
 
 public class App {
 
-    // HD size
-    private static final int WINDOW_WIDTH = 1280;
-    private static final int WINDOW_HEIGHT = 720;
+    private static final int WINDOW_WIDTH = 720;
+    private static final int WINDOW_HEIGHT = 960;
 
     public static void main(String[] args) {
         // ゲームエンジンの作成
@@ -113,46 +105,6 @@ public class App {
         // World が全てのエンティティやロジックを管理
         World world = engine.getWorld();
 
-        // プレイヤーエンティティ（青い四角、WASDで移動）
-        {
-            Rectangle rect = new Rectangle(50, 50, Color.BLUE);
-            rect.setZOrder(0); // 描画の重なり順 (一番下)
-            world.spawn(
-                    // これらのモデルを持つエンティティをスポーンする
-                    new Transform(200, 300), // 表示座標モデル
-                    new Velocity(0, 0), // 移動速度モデル
-                    rect
-            );
-        }
-
-        // 静的な障害物エンティティ（赤い四角）
-        {
-            Rectangle rect = new Rectangle(60, 60, Color.RED);
-            rect.setZOrder(10); // 描画の重なり順 (一番上)
-            world.spawn(
-                    // 動かさない長方形
-                    new Transform(-100, -100),
-                    rect
-            );
-        }
-
-        // テキストエンティティ
-        world.spawn(
-                new Transform(200, -200),
-                new Text("Demo - Use WASD or Arrow Keys to move", Color.BLACK, new Font("SansSerif", Font.BOLD, 16))
-        );
-
-        {
-            // カーソルを追跡するエンティティ
-            // カーソルの位置に正方形を表示する
-            CursorView tracker = new CursorView(50, 50, Color.ORANGE);
-            tracker.setZOrder(5); // 描画の重なり順 (水色よりも上だが赤よりも下)
-            world.spawn(
-                    new Transform(),
-                    new GlobalCursorModel(),
-                    tracker
-            );
-        }
         {
             // プレイヤーの表示
             world.spawn(
@@ -165,27 +117,18 @@ public class App {
             // 道路の表示
             world.spawn(
                     new Transform(0, 0),
-                    new LaneView()
-            );
-        }
-
-        {
-            // 1秒ごとに色が変わる円
-            world.spawn(
-                    new Transform(200, 0),
-                    new Circle(40, Color.ORANGE),
-                    new Timer(1_000, Timer.TimerMode.Loop)
+                    new LaneView(WINDOW_WIDTH, WINDOW_HEIGHT)
             );
         }
 
         // システムの追加
         // ゲームロジックはシステムとして扱う (これが Controller)
         world.addSystems(
-                new PlayerMovementSystem(), // プレイヤー操作 (キーが入力された時に速度を適用する)
-                new MovementSystem(), // 移動（Velocity を Transform に反映する）
-                new GlobalCursorSystem(), // グローバルなマウス位置を取得するシステムを追加
-                new CursorSystem(), // 長方形がカーソルをトラッキングするように
-                new PulseCircleSystem() // 円の色を変えるシステム
+                new GlobalCursorSystem() // グローバルなマウス位置を取得するシステムを追加
+        // new PlayerMovementSystem(), // プレイヤー操作 (キーが入力された時に速度を適用する)
+        // new MovementSystem(), // 移動（Velocity を Transform に反映する）
+        // new CursorSystem(), // 長方形がカーソルをトラッキングするように
+        // new PulseCircleSystem() // 円の色を変えるシステム
         );
 
         // ゲーム開始

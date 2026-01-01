@@ -57,6 +57,34 @@ public class Graphics {
     }
 
     /**
+     * 塗りつぶしの多角形を描画
+     */
+    public void fillPolygon(int[] xPoints, int[] yPoints, Color color) {
+        int numXPoints = xPoints.length;
+        int numYPoints = yPoints.length;
+        if (numXPoints != numYPoints) {
+            throw new IllegalArgumentException("Number of points does not match nPoints");
+        }
+
+        g2d.setColor(color);
+        g2d.fillPolygon(xPoints, yPoints, numXPoints);
+    }
+
+    /**
+     * 多角形を描画
+     */
+    public void drawPolygon(int[] xPoints, int[] yPoints, Color color) {
+        int numXPoints = xPoints.length;
+        int numYPoints = yPoints.length;
+        if (numXPoints != numYPoints) {
+            throw new IllegalArgumentException("Number of points does not match nPoints");
+        }
+
+        g2d.setColor(color);
+        g2d.drawPolygon(xPoints, yPoints, numXPoints);
+    }
+
+    /**
      * 線を描画
      */
     public void drawLine(float x1, float y1, float x2, float y2, Color color) {
