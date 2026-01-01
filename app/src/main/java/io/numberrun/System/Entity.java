@@ -1,6 +1,8 @@
 package io.numberrun.System;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -15,6 +17,8 @@ public class Entity {
 
     private final long id;
     private final Map<Class<? extends Component>, Component> components = new HashMap<>();
+    private final List<Entity> children = new ArrayList<>();
+    private Entity parent = null;
     private boolean active = true;
 
     public Entity() {
@@ -90,5 +94,51 @@ public class Entity {
      */
     public void destroy() {
         this.active = false;
+        // 子エンティティも破棄
+        for (Entity child : children) {
+            child.destroy();
+        }
+    }
+
+    /**
+     * 子エンティティを追加
+     */
+    public Entity addChild(Entity child) {
+        if (child.parent != null) {
+            child.parent.removeChild(child);
+        }
+        children.add(child);
+        child.parent = this;
+        return this;
+    }
+
+    public Entity addChildren(Entity... children) {
+        for (Entity child : children) {
+            addChild(child);
+        }
+        return this;
+    }
+
+    /**
+     * 子エンティティを削除
+     */
+    public void removeChild(Entity child) {
+        if (children.remove(child)) {
+            child.parent = null;
+        }
+    }
+
+    /**
+     * 全ての子エンティティを取得
+     */
+    public List<Entity> getChildren() {
+        return new ArrayList<>(children);
+    }
+
+    /**
+     * 親エンティティを取得
+     */
+    public Optional<Entity> getParent() {
+        return Optional.ofNullable(parent);
     }
 }

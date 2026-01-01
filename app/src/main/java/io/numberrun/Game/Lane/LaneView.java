@@ -20,15 +20,15 @@ public class LaneView implements Renderable {
             int width,
             int height
     ) {
-        // top-left: (width * 0.25, -height)
-        // top-right: (width * 0.75, -height)
-        // bottom-left: (width * 0.1, height)
-        // bottom-right: (width * 0.9, height)
+        // top-left: (width * 0.25, 0)
+        // top-right: (width * 0.75, 0)
+        // bottom-left: (width * 0.0, height)
+        // bottom-right: (width * 1.0, height)
 
         this.topLeft = new Point((int) (-width * 0.25f), (int) (-height / 2f));
         this.topRight = new Point((int) (width * 0.25f), (int) (-height / 2f));
-        this.bottomLeft = new Point((int) (-width * 0.45f), (int) (height / 2));
-        this.bottomRight = new Point((int) (width * 0.45f), (int) (height / 2));
+        this.bottomLeft = new Point((int) (-width * 0.5f), (int) (height / 2));
+        this.bottomRight = new Point((int) (width * 0.5f), (int) (height / 2));
     }
 
     @Override
@@ -50,5 +50,17 @@ public class LaneView implements Renderable {
     @Override
     public int getZOrder() {
         return -100; // 背景に近いほど小さい値
+    }
+
+    public int maxWidth() {
+        return bottomRight.x - bottomLeft.x;
+    }
+
+    public int maxHeight() {
+        return bottomLeft.y - topLeft.y;
+    }
+
+    public int minWidth() {
+        return topRight.x - topLeft.x;
     }
 }
