@@ -1,95 +1,24 @@
 package io.numberrun;
 
 import java.awt.Color;
-import java.awt.event.KeyEvent;
-import java.util.List;
+import java.awt.Font;
 
-import io.numberrun.Component.Circle;
-import io.numberrun.Component.Image;
+import io.numberrun.Component.Rectangle;
+import io.numberrun.Component.Text;
 import io.numberrun.Component.Timer;
 import io.numberrun.Component.Transform;
-import io.numberrun.Component.Velocity;
 import io.numberrun.Core.GameEngine;
 import io.numberrun.Game.GlobalCursor.GlobalCursorSystem;
+import io.numberrun.Game.Lane.LaneMappingSystem;
+import io.numberrun.Game.Lane.LaneMovementSystem;
+import io.numberrun.Game.Lane.LaneTransform;
+import io.numberrun.Game.Lane.LaneVelocity;
 import io.numberrun.Game.Lane.LaneView;
+import io.numberrun.Game.Player.PlayerMovementSystem;
+import io.numberrun.Game.Player.PlayerView;
+import io.numberrun.Game.Player.PlayerViewSyncSystem;
 import io.numberrun.System.Entity;
-import io.numberrun.System.GameSystem;
 import io.numberrun.System.World;
-import io.numberrun.UI.InputEvent;
-import io.numberrun.UI.InputState;
-
-/**
- * プレイヤー操作システム WASDキーでプレイヤーを移動する
- */
-class PlayerMovementSystem implements GameSystem {
-
-    private static final float SPEED = 400f;
-
-    @Override
-    public void update(World world, float deltaTime) {
-        // このシステムはonInputで処理するので、updateでは何もしない
-    }
-
-    // キー入力が入るとこれが呼ばれる
-    @Override
-    public void onInput(World world, InputEvent event, InputState inputState) {
-        // 全ての Transform と Velocity を持つエンティティを取得する
-        // 今回はプレイヤーの操作できる四角が該当する
-        for (Entity entity : world.query(Transform.class, Velocity.class)) {
-            // 四角が持っている Velocity を取得して更新する
-            entity.getComponent(Velocity.class).ifPresent(velocity -> {
-                float vx = 0;
-                float vy = 0;
-
-                if (inputState.isKeyPressed(KeyEvent.VK_W) || inputState.isKeyPressed(KeyEvent.VK_UP)) {
-                    vy -= SPEED;
-                }
-                if (inputState.isKeyPressed(KeyEvent.VK_S) || inputState.isKeyPressed(KeyEvent.VK_DOWN)) {
-                    vy += SPEED;
-                }
-                if (inputState.isKeyPressed(KeyEvent.VK_A) || inputState.isKeyPressed(KeyEvent.VK_LEFT)) {
-                    vx -= SPEED;
-                }
-                if (inputState.isKeyPressed(KeyEvent.VK_D) || inputState.isKeyPressed(KeyEvent.VK_RIGHT)) {
-                    vx += SPEED;
-                }
-
-                velocity.setVelocity(vx, vy);
-            });
-
-        }
-    }
-}
-
-/**
- * タイマーを使用した一定時間ごとに処理する例
- */
-class PulseCircleSystem implements GameSystem {
-
-    @Override
-    public void update(World world, float deltaTime) {
-        List<Entity> circles = world.query(Circle.class, Timer.class);
-
-        for (Entity entity : circles) {
-
-            entity.getComponent(Timer.class).ifPresent(timer -> {
-                timer.tick(deltaTime * 1000); // deltaTime is in seconds, convert to milliseconds
-                if (timer.justCompleted()) {
-                    // タイマーが終了したら円の色を変えるなどの処理を行う
-                    entity.getComponent(Circle.class).ifPresent(circle -> {
-                        circle.setColor(new Color(
-                                (int) (Math.random() * 256),
-                                (int) (Math.random() * 256),
-                                (int) (Math.random() * 256)
-                        ));
-
-                    });
-                }
-            });
-        }
-
-    }
-}
 
 public class App {
 
@@ -109,7 +38,13 @@ public class App {
             // プレイヤーの表示
             world.spawn(
                     new Transform(),
-                    new Image(App.class.getResource("/images/player.png"), 40, 75)
+                    new LaneTransform(
+                            0.0f, // X 座標 （中央)
+                            0.4f, // Y 座標 (下側)
+                            false
+                    ).setMovementLimit(-0.45f, 0.45f, -0.5f, 0.5f), // 左右移動の範囲を少し制限
+                    new LaneVelocity(),
+                    new PlayerView()
             );
         }
 
@@ -121,14 +56,60 @@ public class App {
             );
         }
 
+        {
+            // 正方形の表示
+            world.spawn(
+                    new Transform(),
+                    new Rectangle(100, 100, Color.RED),
+                    new LaneTransform(0.25f, 0.25f), // レーン上の座標
+                    new Timer(5_000, Timer.TimerMode.Loop)
+            );
+
+            // 正方形の表示(上側なので小さくなる)
+            world.spawn(
+                    new Transform(),
+                    new Rectangle(100, 100, Color.ORANGE),
+                    new LaneTransform(0.25f, -0.45f) // レーン上の座標
+            );
+        }
+
+        {
+            // 壁の表示
+            Entity blueWall = world.spawn(
+                    new Transform(),
+                    new Rectangle(WINDOW_WIDTH / 2, 200, new Color(0, 144, 255, 50)),
+                    new LaneTransform(-0.25f, -0.25f)
+            );
+            blueWall.addChildren(
+                    world.spawn(
+                            new Transform(),
+                            new Text("x5", new Color(0x0588F0), new Font("SansSerif", Font.BOLD, 48))
+                    )
+            );
+
+            // 壁の表示
+            Entity redWall = world.spawn(
+                    new Transform(),
+                    // #E5484D 
+                    new Rectangle(WINDOW_WIDTH / 2, 200, new Color(229, 72, 77, 50)),
+                    new LaneTransform(0.25f, -0.25f)
+            );
+            redWall.addChildren(
+                    world.spawn(
+                            new Transform(),
+                            new Text("-2", new Color(0xCE2C31), new Font("SansSerif", Font.BOLD, 48))
+                    )
+            );
+        }
+
         // システムの追加
         // ゲームロジックはシステムとして扱う (これが Controller)
         world.addSystems(
-                new GlobalCursorSystem() // グローバルなマウス位置を取得するシステムを追加
-        // new PlayerMovementSystem(), // プレイヤー操作 (キーが入力された時に速度を適用する)
-        // new MovementSystem(), // 移動（Velocity を Transform に反映する）
-        // new CursorSystem(), // 長方形がカーソルをトラッキングするように
-        // new PulseCircleSystem() // 円の色を変えるシステム
+                new GlobalCursorSystem(), // グローバルなマウス位置を取得するシステムを追加
+                new LaneMovementSystem(),
+                new LaneMappingSystem(), // レーン上の座標と画面上の座標を変換するシステム
+                new PlayerViewSyncSystem(),
+                new PlayerMovementSystem() // プレイヤー操作 (キーが入力された時に速度を適用する)
         );
 
         // ゲーム開始

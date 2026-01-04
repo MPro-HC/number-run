@@ -14,6 +14,11 @@ public class LaneTransform implements Component {
     private final float minY = -0.5f; // 上
     private final float maxY = 0.5f; // 下
 
+    private float movementMinX = -0.5f; // 移動可能な最小X座標
+    private float movementMaxX = 0.5f; // 移動可能な最大X座標
+    private float movementMinY = -1.0f; // 移動可能な最小Y座標
+    private float movementMaxY = 1.0f; // 移動可能な最大Y座標
+
     public LaneTransform() {
         this(0, 0);
     }
@@ -34,10 +39,22 @@ public class LaneTransform implements Component {
     }
 
     public void setLaneX(float laneX) {
+        // 移動可能な範囲内に制限
+        if (laneX < 0) {
+            laneX = Math.max(laneX, movementMinX);
+        } else {
+            laneX = Math.min(laneX, movementMaxX);
+        }
         this.laneX = laneX;
     }
 
     public float getLaneY() {
+        // 移動可能な範囲内に制限
+        if (laneY < 0) {
+            laneY = Math.max(laneY, movementMinY);
+        } else {
+            laneY = Math.min(laneY, movementMaxY);
+        }
         return laneY;
     }
 
@@ -47,6 +64,15 @@ public class LaneTransform implements Component {
 
     public boolean shouldScaleByZ() {
         return scaleByZ;
+    }
+
+    public LaneTransform setMovementLimit(float minX, float maxX, float minY, float maxY) {
+        this.movementMinX = minX;
+        this.movementMaxX = maxX;
+        this.movementMinY = minY;
+        this.movementMaxY = maxY;
+
+        return this;
     }
 
     // 固定値

@@ -130,6 +130,13 @@ public class Graphics {
     }
 
     /**
+     * XYの移動
+     */
+    public void translate(float x, float y) {
+        g2d.translate(x, y);
+    }
+
+    /**
      * 変換を適用（移動、回転、スケール）
      */
     public void transform(float x, float y, float rotation, float scaleX, float scaleY) {
