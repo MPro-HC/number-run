@@ -77,33 +77,6 @@ import io.numberrun.System.World;
 //         }
 //     }
 // }
-class RedRectMovementSystem implements GameSystem {
-
-    @Override
-    public void update(World world, float deltaTime) {
-        List<Entity> rects = world.query(Rectangle.class, LaneTransform.class, Timer.class);
-
-        for (Entity entity : rects) {
-
-            entity.getComponent(Timer.class).ifPresent(timer -> {
-                timer.tick(deltaTime * 1000); // deltaTime is in seconds, convert to milliseconds
-                float progress = timer.getProgress();
-
-                entity.getComponent(LaneTransform.class).ifPresent(laneTransform -> {
-                    // タイマーが終了したら四角の位置を更新する
-                    float startY = -0.6f;
-                    float endY = 0.6f;
-                    float newY = startY + (endY - startY) * progress;
-
-                    laneTransform.setLaneY(newY);
-                });
-
-            });
-        }
-
-    }
-}
-
 public class Sample {
 
     private static final int WINDOW_WIDTH = 720;
@@ -186,5 +159,32 @@ public class Sample {
 
         // ゲーム開始
         engine.start();
+    }
+
+    private static class RedRectMovementSystem implements GameSystem {
+
+        @Override
+        public void update(World world, float deltaTime) {
+            List<Entity> rects = world.query(Rectangle.class, LaneTransform.class, Timer.class);
+
+            for (Entity entity : rects) {
+
+                entity.getComponent(Timer.class).ifPresent(timer -> {
+                    timer.tick(deltaTime * 1000); // deltaTime is in seconds, convert to milliseconds
+                    float progress = timer.getProgress();
+
+                    entity.getComponent(LaneTransform.class).ifPresent(laneTransform -> {
+                        // タイマーが終了したら四角の位置を更新する
+                        float startY = -0.6f;
+                        float endY = 0.6f;
+                        float newY = startY + (endY - startY) * progress;
+
+                        laneTransform.setLaneY(newY);
+                    });
+
+                });
+            }
+
+        }
     }
 }
