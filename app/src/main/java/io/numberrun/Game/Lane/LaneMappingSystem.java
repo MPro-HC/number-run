@@ -72,9 +72,23 @@ public class LaneMappingSystem implements GameSystem {
         float minScale = (float) laneView.minWidth() / laneView.maxWidth();
         float maxScale = 1.0f;
 
-        // Lane Y を [minY, maxY] から [minScale, maxScale] に線形補間
+        // 線形の補間値 t を計算
         float t = (normalizedY - laneTransform.getMinY()) / (laneTransform.getMaxY() - laneTransform.getMinY());
-        return minScale + (maxScale - minScale) * t;
+
+        // 遠近法補正済みの t を使用（Y座標と同じ基準でスケールを計算）
+        float perspectiveT = calculatePerspectiveT(t, minScale);
+
+        return minScale + (maxScale - minScale) * perspectiveT;
+    }
+
+    // 遠近法を考慮したY座標の補間値を計算
+    // 見かけ上の移動速度を一定にするため、スケールに比例した移動量になるよう二次関数でマッピング
+    private float calculatePerspectiveT(float t, float minScale) {
+        // perceived_speed = d(screenY)/dt / scale を一定にするには
+        // d(screenY)/dt ∝ scale である必要がある
+        // scale = minScale + (1 - minScale) * t を積分すると二次関数になる
+        // screenT = [2 * minScale * t + (1 - minScale) * t²] / (1 + minScale)
+        return (2.0f * minScale * t + (1.0f - minScale) * t * t) / (1.0f + minScale);
     }
 
     // レーン上の x 座標から、グローバルな座標に変換する
@@ -99,11 +113,18 @@ public class LaneMappingSystem implements GameSystem {
         // Lane Y 座標を正規化（-0.5が奥、0.5が手前）
         float normalizedY = laneTransform.getLaneY();
 
-        // Lane Y を画面の高さにマッピング
+        // 線形の補間値 t を計算
+        float t = (normalizedY - laneTransform.getMinY()) / (laneTransform.getMaxY() - laneTransform.getMinY());
+
+        // 遠近法補正：奥側（t=0付近）は詰まり、手前側（t=1付近）は広がる
+        // これにより見かけ上の移動速度が一定になる
+        float minScale = (float) laneView.minWidth() / laneView.maxWidth();
+        float perspectiveT = calculatePerspectiveT(t, minScale);
+
+        // Lane Y を画面の高さにマッピング（遠近法補正済み）
         // minY（-0.5、奥）→ レーンの上端
         // maxY（0.5、手前）→ レーンの下端
-        float t = (normalizedY - laneTransform.getMinY()) / (laneTransform.getMaxY() - laneTransform.getMinY());
-        float screenY = -laneView.maxHeight() / 2f + t * laneView.maxHeight();
+        float screenY = -laneView.maxHeight() / 2f + perspectiveT * laneView.maxHeight();
 
         // オブジェクトの高さを考慮して底面を基準にする
         if (renderableOpt.isPresent()) {

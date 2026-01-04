@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Font;
 import java.util.List;
 
-import io.numberrun.Component.Image;
 import io.numberrun.Component.Rectangle;
 import io.numberrun.Component.Text;
 import io.numberrun.Component.Timer;
@@ -118,14 +117,6 @@ public class Sample {
 
         // World が全てのエンティティやロジックを管理
         World world = engine.getWorld();
-
-        {
-            // プレイヤーの表示
-            world.spawn(
-                    new Transform(),
-                    new Image(App.class.getResource("/images/player.png"), 40, 75)
-            );
-        }
 
         {
             // 道路の表示
