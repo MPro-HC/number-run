@@ -12,7 +12,7 @@ public class PlayerMovementSystem implements GameSystem {
 
     @Override
     public int getPriority() {
-        return SystemPriority.LOW.getPriority(); // 他のシステムより後に実行
+        return SystemPriority.LOW.getPriority();
     }
 
     @Override
