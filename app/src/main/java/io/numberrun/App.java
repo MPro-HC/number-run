@@ -1,10 +1,8 @@
 package io.numberrun;
 
 import java.awt.Color;
-import java.awt.Font;
 
 import io.numberrun.Component.Rectangle;
-import io.numberrun.Component.Text;
 import io.numberrun.Component.Timer;
 import io.numberrun.Component.Transform;
 import io.numberrun.Core.GameEngine;
@@ -14,10 +12,10 @@ import io.numberrun.Game.Lane.LaneMovementSystem;
 import io.numberrun.Game.Lane.LaneTransform;
 import io.numberrun.Game.Lane.LaneVelocity;
 import io.numberrun.Game.Lane.LaneView;
+import io.numberrun.Game.Level.LevelSystem;
 import io.numberrun.Game.Player.PlayerMovementSystem;
 import io.numberrun.Game.Player.PlayerView;
 import io.numberrun.Game.Player.PlayerViewSyncSystem;
-import io.numberrun.System.Entity;
 import io.numberrun.System.World;
 
 public class App {
@@ -73,39 +71,11 @@ public class App {
             );
         }
 
-        {
-            // 壁の表示
-            Entity blueWall = world.spawn(
-                    new Transform(),
-                    new Rectangle(WINDOW_WIDTH / 2, 200, new Color(0, 144, 255, 50)),
-                    new LaneTransform(-0.25f, -0.25f)
-            );
-            blueWall.addChildren(
-                    world.spawn(
-                            new Transform(),
-                            new Text("x5", new Color(0x0588F0), new Font("SansSerif", Font.BOLD, 48))
-                    )
-            );
-
-            // 壁の表示
-            Entity redWall = world.spawn(
-                    new Transform(),
-                    // #E5484D 
-                    new Rectangle(WINDOW_WIDTH / 2, 200, new Color(229, 72, 77, 50)),
-                    new LaneTransform(0.25f, -0.25f)
-            );
-            redWall.addChildren(
-                    world.spawn(
-                            new Transform(),
-                            new Text("-2", new Color(0xCE2C31), new Font("SansSerif", Font.BOLD, 48))
-                    )
-            );
-        }
-
         // システムの追加
         // ゲームロジックはシステムとして扱う (これが Controller)
         world.addSystems(
                 new GlobalCursorSystem(), // グローバルなマウス位置を取得するシステムを追加
+                new LevelSystem(), // レベル進行・障害物生成システム
                 new LaneMovementSystem(),
                 new LaneMappingSystem(), // レーン上の座標と画面上の座標を変換するシステム
                 new PlayerViewSyncSystem(),

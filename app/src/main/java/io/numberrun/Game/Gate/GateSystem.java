@@ -2,7 +2,6 @@ package io.numberrun.Game.Gate;
 
 import io.numberrun.Component.Rectangle;
 import io.numberrun.Component.Transform;
-import io.numberrun.Game.Player.LanePosition;
 import io.numberrun.Game.Player.Power;
 import io.numberrun.System.Entity;
 import io.numberrun.System.GameSystem;
@@ -16,10 +15,12 @@ public class GateSystem implements GameSystem {
         Entity player = null;
         for (Entity e : world.query(Power.class, Transform.class, Rectangle.class)) {
             player = e;
-            break; 
+            break;
         }
 
-        if (player == null) return;
+        if (player == null) {
+            return;
+        }
 
         // プレイヤー情報の取得
         Power playerPower = player.getComponent(Power.class).get();
@@ -34,12 +35,12 @@ public class GateSystem implements GameSystem {
 
             // ★ここが変更点！物理的な「重なり」を判定する
             if (isColliding(pTrans, pRect, gTrans, gRect)) {
-                
+
                 // 計算実行
                 applyGateEffect(playerPower, gate);
-                
+
                 System.out.println("Gate Passed! Power: " + playerPower.getValue());
-                
+
                 // ゲート消滅
                 gateEntity.destroy();
             }
@@ -72,8 +73,12 @@ public class GateSystem implements GameSystem {
     private void applyGateEffect(Power power, Gate gate) {
         // (前と同じなので省略可能)
         switch (gate.getOperationType()) {
-            case ADD: power.add(gate.getValue()); break;
-            case MULTIPLY: power.multiply(gate.getValue()); break;
+            case ADD:
+                power.add(gate.getValue());
+                break;
+            case MULTIPLY:
+                power.multiply(gate.getValue());
+                break;
         }
     }
 }
