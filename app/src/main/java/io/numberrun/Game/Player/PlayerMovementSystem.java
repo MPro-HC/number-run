@@ -3,13 +3,13 @@ package io.numberrun.Game.Player;
 import java.awt.event.KeyEvent;
 import java.util.List;
 
+import io.numberrun.Game.Lane.LaneVelocity;
+import io.numberrun.System.Entity;
 import io.numberrun.System.GameSystem;
 import io.numberrun.System.SystemPriority;
 import io.numberrun.System.World;
 import io.numberrun.UI.InputEvent;
 import io.numberrun.UI.InputState;
-import io.numberrun.Game.Lane.LaneVelocity;
-import io.numberrun.System.Entity;
 
 public class PlayerMovementSystem implements GameSystem {
 
@@ -22,7 +22,7 @@ public class PlayerMovementSystem implements GameSystem {
 
     @Override
     public void onInput(World world, InputEvent event, InputState inputState) {
-        // TODO: Sample.java の PlayerMovementSystem を参考にプレイヤーの動きを実装する
+        // Sample.java の PlayerMovementSystem を参考にプレイヤーの動きを実装する
         List<Entity> players = world.query(PlayerView.class, LaneVelocity.class);
 
         // 1. world から PlayerView, LaneVelocity を持つエンティティを取得する

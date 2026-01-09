@@ -21,7 +21,7 @@ import io.numberrun.System.World;
 // レーン上に壁とか色々配置するシステム
 public class LevelSystem implements GameSystem {
 
-    // TODO: レーンに壁などのオブジェクトを生成する処理と World に spawn する処理
+    // レーンに壁などのオブジェクトを生成する処理と World に spawn する処理
     // 生成間隔（秒）
     private static final float SPAWN_INTERVAL_SEC = 1.2f;
 
