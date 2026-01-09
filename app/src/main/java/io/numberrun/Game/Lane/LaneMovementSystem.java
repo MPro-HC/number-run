@@ -1,9 +1,13 @@
 package io.numberrun.Game.Lane;
 
+import io.numberrun.System.Entity;
 import io.numberrun.System.GameSystem;
 import io.numberrun.System.SystemPriority;
 import io.numberrun.System.World;
 
+/**
+ * LaneVelocity に基づいて LaneTransform の座標を更新するシステム 障害物を手前に移動させる処理を担当
+ */
 public class LaneMovementSystem implements GameSystem {
 
     @Override
@@ -13,16 +17,21 @@ public class LaneMovementSystem implements GameSystem {
 
     @Override
     public void update(World world, float deltaTime) {
-        // TODO: LaneVelocity に基づいてプレイヤーの位置を更新する (MovementSystem.java 参照)
-        // 1. for 分で world から LaneTransform と LaneVelocity を持つエンティティを query で取得する
-        {
-            // 2. それぞれの entity に対して、LaneTransform と LaneVelocity を取得する
+        // LaneTransform と LaneVelocity を持つエンティティを取得
+        for (Entity entity : world.query(LaneTransform.class, LaneVelocity.class)) {
+            // コンポーネントを取得
+            LaneTransform transform = entity.getComponent(LaneTransform.class).orElse(null);
+            LaneVelocity velocity = entity.getComponent(LaneVelocity.class).orElse(null);
 
-            // 3. LaneTransform と LaneVelocity の両方が存在するなら
-            {
+            // 両方存在する場合のみ処理
+            if (transform != null && velocity != null) {
+                // 速度 × deltaTime を現在座標に加算
+                float newX = transform.getLaneX() + velocity.getVx() * deltaTime;
+                float newY = transform.getLaneY() + velocity.getVy() * deltaTime;
 
-                // 4. LaneVelocity の速度に deltaTime をかけたものを LaneTransform 座標に足して計算
-                // 5. 計算した新しい座標をセットする
+                // 新しい座標をセット
+                transform.setLaneX(newX);
+                transform.setLaneY(newY);
             }
         }
     }
