@@ -1,15 +1,18 @@
 package io.numberrun.Game.Level;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.util.List;
 import java.util.Random;
 
+import io.numberrun.Component.Rectangle;
+import io.numberrun.Component.Text;
 import io.numberrun.Component.Transform;
 import io.numberrun.Game.Lane.LaneTransform;
 import io.numberrun.Game.Lane.LaneVelocity;
+import io.numberrun.Game.Lane.LaneView;
 import io.numberrun.Game.Wall.Wall;
 import io.numberrun.Game.Wall.WallType;
-import io.numberrun.Game.Wall.WallView;
 import io.numberrun.System.Entity;
 import io.numberrun.System.GameSystem;
 import io.numberrun.System.SystemPriority;
@@ -20,158 +23,125 @@ import io.numberrun.System.World;
  */
 public class LevelSystem implements GameSystem {
 
-    private static final float SPAWN_Y = -0.5f;      // 障害物が出現するY座標（奥）
-    private static final float DESPAWN_Y = 0.6f;     // 障害物が消えるY座標（手前を超えた位置）
-    private static final float WALL_WIDTH = 360f;    // 壁の幅
-    private static final float WALL_HEIGHT = 160f;   // 壁の高さ
+    // レーンに壁などのオブジェクトを生成する処理と World に spawn する処理
+    // 生成間隔（秒）
+    private static final float SPAWN_INTERVAL_SEC = 1.2f;
+
+    // 壁が奥→手前に流れてくる速度（Lane座標 / 秒）
+    private static final float WALL_SPEED = 0.35f;
+
+    // 生成位置・削除位置（LaneY）
+    private static final float SPAWN_Y = -0.65f;   // 奥側ちょい外から出す
+    private static final float DESPAWN_Y = 0.80f;  // 手前側に抜けたら消す
+
+    private static final float LEFT_X = -0.25f;
+    private static final float RIGHT_X = 0.25f;
+
+    private static final Font WALL_FONT = new Font("SansSerif", Font.BOLD, 48);
 
     private final Random random = new Random();
+    private float spawnTimer = 0f;
 
     @Override
     public int getPriority() {
-        return SystemPriority.HIGH.getPriority();
-    }
-
-    @Override
-    public void onStart(World world) {
-        // Level エンティティが存在しない場合は生成する
-        List<Entity> levels = world.query(Level.class);
-        if (levels.isEmpty()) {
-            world.spawn(new Level());
-        }
+        // 生成は別に早くても遅くても良いが、DEFAULTにしておく
+        return SystemPriority.DEFAULT.getPriority();
     }
 
     @Override
     public void update(World world, float deltaTime) {
-        // Level コンポーネントを取得
-        List<Entity> levelEntities = world.query(Level.class);
-        if (levelEntities.isEmpty()) {
+        // LaneView が無いと壁の幅を決められないので何もしない
+        List<Entity> laneEntities = world.query(LaneView.class);
+        if (laneEntities.isEmpty()) {
             return;
         }
 
-        Level level = levelEntities.get(0).getComponent(Level.class).get();
+        LaneView laneView = laneEntities.get(0).getComponent(LaneView.class).get();
 
-        if (!level.isActive()) {
+        // 画面外に抜けた壁を削除
+        cleanupWalls(world);
+
+        // 生成タイマー更新
+        spawnTimer += deltaTime;
+
+        // 壁が多すぎるときは生成しない（保険）
+        int wallCount = world.query(Wall.class).size();
+        if (wallCount > 30) {
             return;
         }
 
-        // 1. 進行距離を更新
-        level.addDistance(level.getScrollSpeed() * deltaTime);
+        // 一定間隔で「左右に1枚ずつ」生成
+        while (spawnTimer >= SPAWN_INTERVAL_SEC) {
+            spawnTimer -= SPAWN_INTERVAL_SEC;
 
-        // 2. 生成判定：距離が次のスポーン距離に達したらスポーン
-        while (level.getCurrentDistance() >= level.getSpawnDistance()) {
-            spawnWallPair(world, level);
-            scheduleNextSpawn(level);
+            spawnWall(world, laneView, LEFT_X);
+            spawnWall(world, laneView, RIGHT_X);
         }
-
-        // 3. 画面外に出た障害物を削除
-        cleanupOffscreenEntities(world);
     }
 
-    /**
-     * 壁のペアをスポーンする（左右に2つ）
-     */
-    private void spawnWallPair(World world, Level level) {
-        // 左側の壁
-        WallType leftType = randomWallType();
-        int leftValue = randomValue(leftType);
-        spawnWall(world, level, -0.25f, leftType, leftValue);
-
-        // 右側の壁
-        WallType rightType = randomWallType();
-        int rightValue = randomValue(rightType);
-        spawnWall(world, level, 0.25f, rightType, rightValue);
-    }
-
-    /**
-     * 単一の壁をスポーンする
-     */
-    private void spawnWall(World world, Level level, float laneX, WallType type, int value) {
-        Color wallColor = getWallColor(type);
-        Color textColor = getTextColor(type);
-        String text = formatWallText(type, value);
-
-        // 壁エンティティを生成
-        world.spawn(
-                new Transform(),
-                // new Rectangle(WALL_WIDTH, WALL_HEIGHT, wallColor),
-                new WallView(WALL_WIDTH, WALL_HEIGHT, wallColor,
-                        wallColor, // border color
-                        Color.BLACK, // text color
-                        text
-                ),
-                new LaneTransform(laneX, SPAWN_Y),
-                new LaneVelocity(0, level.getScrollSpeed()),
-                new Wall(type, value)
-        );
-    }
-
-    /**
-     * 次のスポーン距離を計算してセット
-     */
-    private void scheduleNextSpawn(Level level) {
-        float interval = level.getBaseSpawnInterval() / level.getDifficulty();
-        // ±30% のランダム変動を加える
-        float variance = interval * 0.3f;
-        float randomOffset = (random.nextFloat() - 0.5f) * 2 * variance;
-
-        level.setSpawnDistance(level.getSpawnDistance() + interval + randomOffset);
-    }
-
-    /**
-     * 画面外に出た障害物を削除する
-     */
-    private void cleanupOffscreenEntities(World world) {
-        for (Entity entity : world.query(Wall.class, LaneTransform.class)) {
-            LaneTransform lt = entity.getComponent(LaneTransform.class).get();
+    private void cleanupWalls(World world) {
+        for (Entity e : world.query(Wall.class, LaneTransform.class)) {
+            LaneTransform lt = e.getComponent(LaneTransform.class).get();
             if (lt.getLaneY() > DESPAWN_Y) {
-                entity.destroy();
+                e.destroy();
             }
         }
     }
 
-    // === ユーティリティメソッド ===
+    private void spawnWall(World world, LaneView laneView, float laneX) {
+        // 種類と値を決める
+        WallType type = randomWallType();
+        int value = randomWallValue(type);
+
+        // 表示テキスト
+        String label = wallLabel(type, value);
+
+        // 見た目（色）
+        Color textColor = wallTextColor(type);
+        Color bgColor = wallBgColor(type);
+
+        // 壁サイズ：レーン幅の半分
+        int wallWidth = laneView.maxWidth() / 2;
+        int wallHeight = 200;
+
+        // 壁本体（親Entity）
+        Entity wallEntity = world.spawn(
+                new Transform(),
+                new Rectangle(wallWidth, wallHeight, bgColor),
+                new LaneTransform(laneX, SPAWN_Y), // 奥から出す
+                new LaneVelocity(0f, WALL_SPEED), // 手前へ流す（LaneMovementSystemが反映）
+                new Wall(type, value) // 通過判定用
+        );
+
+        // ラベル（子Entity）
+        wallEntity.addChildren(
+                world.spawn(
+                        new Transform(),
+                        new Text(label, textColor, WALL_FONT)
+                )
+        );
+    }
+
     private WallType randomWallType() {
         WallType[] types = WallType.values();
         return types[random.nextInt(types.length)];
     }
 
-    private int randomValue(WallType type) {
-        return switch (type) {
-            case Add, Subtract ->
-                random.nextInt(10) + 1;      // 1〜10
-            case Multiply, Divide ->
-                random.nextInt(5) + 2;    // 2〜6
-        };
-    }
-
-    private Color getWallColor(WallType type) {
+    private int randomWallValue(WallType type) {
+        // ここはゲームバランスなので適当に調整してOK
         return switch (type) {
             case Add ->
-                new Color(0, 200, 100, 80);       // 緑（半透明）
+                1 + random.nextInt(9);       // +1..+9
             case Subtract ->
-                new Color(229, 72, 77, 80);  // 赤（半透明）
+                1 + random.nextInt(9);  // -1..-9
             case Multiply ->
-                new Color(0, 144, 255, 80);  // 青（半透明）
+                2 + random.nextInt(4);  // x2..x5
             case Divide ->
-                new Color(255, 165, 0, 80);    // オレンジ（半透明）
+                2 + random.nextInt(3);    // /2../4
         };
     }
 
-    private Color getTextColor(WallType type) {
-        return switch (type) {
-            case Add ->
-                new Color(0, 150, 75);       // 濃い緑
-            case Subtract ->
-                new Color(206, 44, 49); // 濃い赤
-            case Multiply ->
-                new Color(5, 136, 240); // 濃い青
-            case Divide ->
-                new Color(200, 120, 0);   // 濃いオレンジ
-        };
-    }
-
-    private String formatWallText(WallType type, int value) {
+    private String wallLabel(WallType type, int value) {
         return switch (type) {
             case Add ->
                 "+" + value;
@@ -180,7 +150,34 @@ public class LevelSystem implements GameSystem {
             case Multiply ->
                 "x" + value;
             case Divide ->
-                "÷" + value;
+                "/" + value;
+        };
+    }
+
+    private Color wallTextColor(WallType type) {
+        return switch (type) {
+            case Add ->
+                new Color(0x18794E);       // 緑
+            case Subtract ->
+                new Color(0xCE2C31);  // 赤
+            case Multiply ->
+                new Color(0x0588F0);  // 青
+            case Divide ->
+                new Color(0x6E56CF);    // 紫
+        };
+    }
+
+    private Color wallBgColor(WallType type) {
+        // alpha 50 くらいで薄く
+        return switch (type) {
+            case Add ->
+                new Color(24, 121, 78, 50);
+            case Subtract ->
+                new Color(229, 72, 77, 50);
+            case Multiply ->
+                new Color(0, 144, 255, 50);
+            case Divide ->
+                new Color(110, 86, 207, 50);
         };
     }
 }

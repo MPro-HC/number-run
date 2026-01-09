@@ -1,5 +1,7 @@
 package io.numberrun.Game.Lane;
 
+import java.util.List;
+
 import io.numberrun.System.Entity;
 import io.numberrun.System.GameSystem;
 import io.numberrun.System.SystemPriority;
@@ -17,22 +19,19 @@ public class LaneMovementSystem implements GameSystem {
 
     @Override
     public void update(World world, float deltaTime) {
-        // LaneTransform と LaneVelocity を持つエンティティを取得
-        for (Entity entity : world.query(LaneTransform.class, LaneVelocity.class)) {
-            // コンポーネントを取得
-            LaneTransform transform = entity.getComponent(LaneTransform.class).orElse(null);
-            LaneVelocity velocity = entity.getComponent(LaneVelocity.class).orElse(null);
+        // LaneVelocity に基づいてプレイヤーの位置を更新する (MovementSystem.java 参照)
+        List<Entity> entities = world.query(LaneTransform.class, LaneVelocity.class);
+        // 1. for 分で world から LaneTransform と LaneVelocity を持つエンティティを query で取得する
+        for (Entity entity : entities) {
+            // 2. それぞれの entity に対して、LaneTransform と LaneVelocity を取得する
+            LaneTransform laneTransform = entity.getComponent(LaneTransform.class).get();
+            LaneVelocity laneVelocity = entity.getComponent(LaneVelocity.class).get();
 
-            // 両方存在する場合のみ処理
-            if (transform != null && velocity != null) {
-                // 速度 × deltaTime を現在座標に加算
-                float newX = transform.getLaneX() + velocity.getVx() * deltaTime;
-                float newY = transform.getLaneY() + velocity.getVy() * deltaTime;
-
-                // 新しい座標をセット
-                transform.setLaneX(newX);
-                transform.setLaneY(newY);
-            }
+            // 3. LaneTransform と LaneVelocity の両方が存在するなら
+            // 4. LaneVelocity の速度に deltaTime をかけたものを LaneTransform 座標に足して計算
+            // 5. 計算した新しい座標をセットする
+            laneTransform.setLaneX(laneTransform.getLaneX() + laneVelocity.getVx() * deltaTime);
+            laneTransform.setLaneY(laneTransform.getLaneY() + laneVelocity.getVy() * deltaTime);
         }
     }
 }
