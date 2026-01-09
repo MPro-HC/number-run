@@ -142,21 +142,27 @@ public class GameEngine {
         canvas.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
+                int x = e.getX() - width / 2;
+                int y = e.getY() - height / 2;
                 inputState.mousePressed(e.getButton());
-                InputEvent event = InputEvent.mouseEvent(InputType.MOUSE_PRESSED, e.getX(), e.getY(), e.getButton());
+                InputEvent event = InputEvent.mouseEvent(InputType.MOUSE_PRESSED, x, y, e.getButton());
                 world.handleInput(event, inputState);
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
+                int x = e.getX() - width / 2;
+                int y = e.getY() - height / 2;
                 inputState.mouseReleased(e.getButton());
-                InputEvent event = InputEvent.mouseEvent(InputType.MOUSE_RELEASED, e.getX(), e.getY(), e.getButton());
+                InputEvent event = InputEvent.mouseEvent(InputType.MOUSE_RELEASED, x, y, e.getButton());
                 world.handleInput(event, inputState);
             }
 
             @Override
             public void mouseClicked(MouseEvent e) {
-                InputEvent event = InputEvent.mouseEvent(InputType.MOUSE_CLICKED, e.getX(), e.getY(), e.getButton());
+                int x = e.getX() - width / 2;
+                int y = e.getY() - height / 2;
+                InputEvent event = InputEvent.mouseEvent(InputType.MOUSE_CLICKED, x, y, e.getButton());
                 world.handleInput(event, inputState);
             }
         });
@@ -164,15 +170,19 @@ public class GameEngine {
         canvas.addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseMoved(MouseEvent e) {
-                inputState.setMousePosition(e.getX(), e.getY());
-                InputEvent event = InputEvent.mouseEvent(InputType.MOUSE_MOVED, e.getX(), e.getY(), 0);
+                int x = e.getX() - width / 2;
+                int y = e.getY() - height / 2;
+                inputState.setMousePosition(x, y);
+                InputEvent event = InputEvent.mouseEvent(InputType.MOUSE_MOVED, x, y, 0);
                 world.handleInput(event, inputState);
             }
 
             @Override
             public void mouseDragged(MouseEvent e) {
-                inputState.setMousePosition(e.getX(), e.getY());
-                InputEvent event = InputEvent.mouseEvent(InputType.MOUSE_DRAGGED, e.getX(), e.getY(), 0);
+                int x = e.getX() - width / 2;
+                int y = e.getY() - height / 2;
+                inputState.setMousePosition(x, y);
+                InputEvent event = InputEvent.mouseEvent(InputType.MOUSE_DRAGGED, x, y, 0);
                 world.handleInput(event, inputState);
             }
         });
@@ -224,6 +234,9 @@ public class GameEngine {
             // 背景をクリア
             g2d.setColor(backgroundColor);
             g2d.fillRect(0, 0, width, height);
+
+            // ウィンドウの中心を原点にするためにオフセットを適用
+            g2d.translate(width / 2.0, height / 2.0);
 
             // ワールドを描画
             Graphics graphics = new Graphics(g2d);

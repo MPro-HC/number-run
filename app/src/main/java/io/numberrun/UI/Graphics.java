@@ -2,6 +2,7 @@ package io.numberrun.UI;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
@@ -56,6 +57,34 @@ public class Graphics {
     }
 
     /**
+     * 塗りつぶしの多角形を描画
+     */
+    public void fillPolygon(int[] xPoints, int[] yPoints, Color color) {
+        int numXPoints = xPoints.length;
+        int numYPoints = yPoints.length;
+        if (numXPoints != numYPoints) {
+            throw new IllegalArgumentException("Number of points does not match nPoints");
+        }
+
+        g2d.setColor(color);
+        g2d.fillPolygon(xPoints, yPoints, numXPoints);
+    }
+
+    /**
+     * 多角形を描画
+     */
+    public void drawPolygon(int[] xPoints, int[] yPoints, Color color) {
+        int numXPoints = xPoints.length;
+        int numYPoints = yPoints.length;
+        if (numXPoints != numYPoints) {
+            throw new IllegalArgumentException("Number of points does not match nPoints");
+        }
+
+        g2d.setColor(color);
+        g2d.drawPolygon(xPoints, yPoints, numXPoints);
+    }
+
+    /**
      * 線を描画
      */
     public void drawLine(float x1, float y1, float x2, float y2, Color color) {
@@ -81,12 +110,55 @@ public class Graphics {
     }
 
     /**
+     * テキストを中央揃えで描画
+     */
+    public void drawTextCentered(String text, float x, float y, Color color, Font font) {
+        g2d.setFont(font);
+        g2d.setColor(color);
+        FontMetrics fm = g2d.getFontMetrics();
+        float textWidth = fm.stringWidth(text);
+        float textHeight = fm.getAscent();
+        // テキストの中心が (x, y) になるように描画
+        g2d.drawString(text, x - textWidth / 2, y + textHeight / 2 - fm.getDescent() / 2);
+    }
+
+    /**
+     * 画像を描画
+     */
+    public void drawImage(java.awt.Image image, float x, float y, float width, float height) {
+        g2d.drawImage(image, (int) x, (int) y, (int) width, (int) height, null);
+    }
+
+    /**
+     * XYの移動
+     */
+    public void translate(float x, float y) {
+        g2d.translate(x, y);
+    }
+
+    /**
      * 変換を適用（移動、回転、スケール）
      */
     public void transform(float x, float y, float rotation, float scaleX, float scaleY) {
         g2d.translate(x, y);
         g2d.rotate(Math.toRadians(rotation));
         g2d.scale(scaleX, scaleY);
+    }
+
+    /**
+     * X軸周りの擬似3D回転（上下に倒れる効果）
+     */
+    public void rotateX(float angle) {
+        double scale = Math.cos(Math.toRadians(angle));
+        g2d.scale(1, scale);
+    }
+
+    /**
+     * Y軸周りの擬似3D回転（左右に倒れる効果）
+     */
+    public void rotateY(float angle) {
+        double scale = Math.cos(Math.toRadians(angle));
+        g2d.scale(scale, 1);
     }
 
     /**
