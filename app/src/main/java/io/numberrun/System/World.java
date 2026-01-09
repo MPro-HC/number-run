@@ -132,39 +132,70 @@ public class World {
      * 描画処理（内部用）
      */
     public void render(Graphics g) {
-        // 描画可能なエンティティをZ-orderでソートして描画
-        List<Entity> renderableEntities = query(Renderable.class, Transform.class);
+        // 親を持たないルートエンティティのみを対象とする
+        List<Entity> rootRenderableEntities = query(Renderable.class, Transform.class).stream()
+                .filter(e -> !e.getParent().isPresent())
+                .collect(Collectors.toList());
 
-        renderableEntities.sort((a, b) -> {
+        rootRenderableEntities.sort((a, b) -> {
             int za = a.getComponent(Renderable.class).map(Renderable::getZOrder).orElse(0);
             int zb = b.getComponent(Renderable.class).map(Renderable::getZOrder).orElse(0);
             return Integer.compare(za, zb);
         });
 
-        for (Entity entity : renderableEntities) {
-            Optional<Transform> transformOpt = entity.getComponent(Transform.class);
-            Optional<Renderable> renderableOpt = entity.getComponent(Renderable.class);
+        for (Entity entity : rootRenderableEntities) {
+            renderEntity(g, entity);
+        }
+    }
 
-            if (transformOpt.isPresent() && renderableOpt.isPresent()) {
-                Transform transform = transformOpt.get();
-                Renderable renderable = renderableOpt.get();
+    /**
+     * エンティティとその子を再帰的に描画
+     */
+    private void renderEntity(Graphics g, Entity entity) {
+        Optional<Transform> transformOpt = entity.getComponent(Transform.class);
+        Optional<Renderable> renderableOpt = entity.getComponent(Renderable.class);
 
-                // 変換を適用
-                AffineTransform saved = g.saveTransform();
-                g.transform(
-                        transform.getX(),
-                        transform.getY(),
-                        transform.getRotation(),
-                        transform.getScaleX(),
-                        transform.getScaleY()
-                );
+        AffineTransform saved = null;
+        boolean hasTransform = transformOpt.isPresent();
 
-                // 描画
-                renderable.render(g);
+        // 変換を適用
+        if (hasTransform) {
+            Transform transform = transformOpt.get();
+            saved = g.saveTransform();
+            g.transform(
+                    transform.getX(),
+                    transform.getY(),
+                    transform.getRotation(),
+                    transform.getScaleX(),
+                    transform.getScaleY()
+            );
+        }
 
-                // 変換を復元
-                g.restoreTransform(saved);
-            }
+        // 描画
+        if (renderableOpt.isPresent()) {
+            renderableOpt.get().render(g);
+        }
+
+        // 子エンティティを描画（親の変換を継承）
+        List<Entity> children = entity.getChildren().stream()
+                .filter(Entity::isActive)
+                .filter(e -> e.hasComponent(Renderable.class))
+                .collect(Collectors.toList());
+
+        // 子エンティティもZ-orderでソート
+        children.sort((a, b) -> {
+            int za = a.getComponent(Renderable.class).map(Renderable::getZOrder).orElse(0);
+            int zb = b.getComponent(Renderable.class).map(Renderable::getZOrder).orElse(0);
+            return Integer.compare(za, zb);
+        });
+
+        for (Entity child : children) {
+            renderEntity(g, child);
+        }
+
+        // 変換を復元
+        if (hasTransform && saved != null) {
+            g.restoreTransform(saved);
         }
     }
 

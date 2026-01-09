@@ -41,9 +41,9 @@ public class GlobalCursorSystem implements GameSystem {
         // JFrameの位置を取得
         Point frameLocation = frame.getLocationOnScreen();
 
-        // JFrame内の座標に変換
-        int x = position.x - frameLocation.x;
-        int y = position.y - frameLocation.y;
+        // JFrame内の座標に変換、ただし中心原点なのでずらす
+        int x = position.x - frameLocation.x - frame.getWidth() / 2;
+        int y = position.y - frameLocation.y - frame.getHeight() / 2;
 
         cursorModel.setPosition(
                 new Point(x, y)
