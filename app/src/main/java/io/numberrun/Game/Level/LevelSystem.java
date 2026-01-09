@@ -5,14 +5,13 @@ import java.awt.Font;
 import java.util.List;
 import java.util.Random;
 
-import io.numberrun.Component.Rectangle;
-import io.numberrun.Component.Text;
 import io.numberrun.Component.Transform;
 import io.numberrun.Game.Lane.LaneTransform;
 import io.numberrun.Game.Lane.LaneVelocity;
 import io.numberrun.Game.Lane.LaneView;
 import io.numberrun.Game.Wall.Wall;
 import io.numberrun.Game.Wall.WallType;
+import io.numberrun.Game.Wall.WallView;
 import io.numberrun.System.Entity;
 import io.numberrun.System.GameSystem;
 import io.numberrun.System.SystemPriority;
@@ -105,20 +104,16 @@ public class LevelSystem implements GameSystem {
         int wallHeight = 200;
 
         // 壁本体（親Entity）
-        Entity wallEntity = world.spawn(
+        world.spawn(
                 new Transform(),
-                new Rectangle(wallWidth, wallHeight, bgColor),
+                new WallView(wallWidth, wallHeight, bgColor,
+                        bgColor, // border color
+                        textColor, // text color
+                        label
+                ),
                 new LaneTransform(laneX, SPAWN_Y), // 奥から出す
                 new LaneVelocity(0f, WALL_SPEED), // 手前へ流す（LaneMovementSystemが反映）
                 new Wall(type, value) // 通過判定用
-        );
-
-        // ラベル（子Entity）
-        wallEntity.addChildren(
-                world.spawn(
-                        new Transform(),
-                        new Text(label, textColor, WALL_FONT)
-                )
         );
     }
 
