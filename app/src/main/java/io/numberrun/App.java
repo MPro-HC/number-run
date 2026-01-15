@@ -2,8 +2,6 @@ package io.numberrun;
 
 import java.awt.Color;
 
-import io.numberrun.Component.Rectangle;
-import io.numberrun.Component.Timer;
 import io.numberrun.Component.Transform;
 import io.numberrun.Core.GameEngine;
 import io.numberrun.Game.GlobalCursor.GlobalCursorSystem;
@@ -54,23 +52,6 @@ public class App {
             world.spawn(
                     new Transform(0, 0),
                     new LaneView(WINDOW_WIDTH, WINDOW_HEIGHT)
-            );
-        }
-
-        {
-            // 正方形の表示
-            world.spawn(
-                    new Transform(),
-                    new Rectangle(100, 100, Color.RED),
-                    new LaneTransform(0.25f, 0.25f), // レーン上の座標
-                    new Timer(5_000, Timer.TimerMode.Loop)
-            );
-
-            // 正方形の表示(上側なので小さくなる)
-            world.spawn(
-                    new Transform(),
-                    new Rectangle(100, 100, Color.ORANGE),
-                    new LaneTransform(0.25f, -0.45f) // レーン上の座標
             );
         }
 
