@@ -14,6 +14,8 @@ import io.numberrun.Game.Lane.LaneVelocity;
 import io.numberrun.Game.Lane.LaneView;
 import io.numberrun.Game.Level.LevelSystem;
 import io.numberrun.Game.Player.PlayerMovementSystem;
+import io.numberrun.Game.Player.PlayerPassWallSystem;
+import io.numberrun.Game.Player.PlayerState;
 import io.numberrun.Game.Player.PlayerView;
 import io.numberrun.Game.Player.PlayerViewSyncSystem;
 import io.numberrun.System.World;
@@ -35,6 +37,7 @@ public class App {
         {
             // プレイヤーの表示
             world.spawn(
+                    new PlayerState(),
                     new Transform(),
                     new LaneTransform(
                             0.0f, // X 座標 （中央)
@@ -79,7 +82,8 @@ public class App {
                 new LaneMovementSystem(),
                 new LaneMappingSystem(), // レーン上の座標と画面上の座標を変換するシステム
                 new PlayerViewSyncSystem(),
-                new PlayerMovementSystem() // プレイヤー操作 (キーが入力された時に速度を適用する)
+                new PlayerMovementSystem(), // プレイヤー操作 (キーが入力された時に速度を適用する)
+                new PlayerPassWallSystem() // プレイヤーが壁を通過したか判定するシステム
         );
 
         // ゲーム開始
