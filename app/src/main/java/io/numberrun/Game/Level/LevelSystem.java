@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Random;
 
 import io.numberrun.Component.Transform;
+import io.numberrun.Game.Lane.LaneSize;
 import io.numberrun.Game.Lane.LaneTransform;
 import io.numberrun.Game.Lane.LaneVelocity;
 import io.numberrun.Game.Lane.LaneView;
@@ -111,6 +112,7 @@ public class LevelSystem implements GameSystem {
                         textColor, // text color
                         label
                 ),
+                new LaneSize(0.5f, 0.1f), // レーン幅の半分、高さは適当
                 new LaneTransform(laneX, SPAWN_Y), // 奥から出す
                 new LaneVelocity(0f, WALL_SPEED), // 手前へ流す（LaneMovementSystemが反映）
                 new Wall(type, value) // 通過判定用

@@ -2,8 +2,6 @@ package io.numberrun;
 
 import java.awt.Color;
 
-import io.numberrun.Component.Rectangle;
-import io.numberrun.Component.Timer;
 import io.numberrun.Component.Transform;
 import io.numberrun.Core.GameEngine;
 import io.numberrun.Game.GlobalCursor.GlobalCursorSystem;
@@ -14,6 +12,8 @@ import io.numberrun.Game.Lane.LaneVelocity;
 import io.numberrun.Game.Lane.LaneView;
 import io.numberrun.Game.Level.LevelSystem;
 import io.numberrun.Game.Player.PlayerMovementSystem;
+import io.numberrun.Game.Player.PlayerPassWallSystem;
+import io.numberrun.Game.Player.PlayerState;
 import io.numberrun.Game.Player.PlayerView;
 import io.numberrun.Game.Player.PlayerViewSyncSystem;
 import io.numberrun.System.World;
@@ -35,6 +35,7 @@ public class App {
         {
             // プレイヤーの表示
             world.spawn(
+                    new PlayerState(),
                     new Transform(),
                     new LaneTransform(
                             0.0f, // X 座標 （中央)
@@ -54,23 +55,6 @@ public class App {
             );
         }
 
-        {
-            // 正方形の表示
-            world.spawn(
-                    new Transform(),
-                    new Rectangle(100, 100, Color.RED),
-                    new LaneTransform(0.25f, 0.25f), // レーン上の座標
-                    new Timer(5_000, Timer.TimerMode.Loop)
-            );
-
-            // 正方形の表示(上側なので小さくなる)
-            world.spawn(
-                    new Transform(),
-                    new Rectangle(100, 100, Color.ORANGE),
-                    new LaneTransform(0.25f, -0.45f) // レーン上の座標
-            );
-        }
-
         // システムの追加
         // ゲームロジックはシステムとして扱う (これが Controller)
         world.addSystems(
@@ -79,7 +63,8 @@ public class App {
                 new LaneMovementSystem(),
                 new LaneMappingSystem(), // レーン上の座標と画面上の座標を変換するシステム
                 new PlayerViewSyncSystem(),
-                new PlayerMovementSystem() // プレイヤー操作 (キーが入力された時に速度を適用する)
+                new PlayerMovementSystem(), // プレイヤー操作 (キーが入力された時に速度を適用する)
+                new PlayerPassWallSystem() // プレイヤーが壁を通過したか判定するシステム
         );
 
         // ゲーム開始

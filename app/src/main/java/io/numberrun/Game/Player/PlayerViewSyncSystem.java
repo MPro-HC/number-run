@@ -27,7 +27,7 @@ public class PlayerViewSyncSystem implements GameSystem {
         for (Entity player : players) {
             // 2. PlayerState から現在の「数値」を取得する
             PlayerState state = player.getComponent(PlayerState.class).get();
-            int number = state.getOwnNumber();
+            int number = state.getNumber();
             // 3. PlayerView の表示を PlayerState の数値に合わせてセットする
             PlayerView view = player.getComponent(PlayerView.class).get();
             view.setPlayerNumber(number);

@@ -45,7 +45,7 @@ public class GameOverSystem implements GameSystem {
         // 2.1 ゲームオーバー処理を実行する 
         // SceneState を持つエンティティを取得し、
         // SceneState に GameOver をセットする
-        if (playerState.getOwnNumber() <= 0) {
+        if (playerState.getNumber() <= 0) {
             sceneState.setCurrentScene(SceneType.GAME_OVER);
         }
     }
