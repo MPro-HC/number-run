@@ -17,13 +17,21 @@ import io.numberrun.Game.Player.PlayerState;
 import io.numberrun.Game.Player.PlayerView;
 import io.numberrun.Game.Player.PlayerViewSyncSystem;
 import io.numberrun.System.World;
+import java.awt.Dimension; // 自動でサイズ変更したかったので追加
+import java.awt.Toolkit;   // 自動でサイズ変更したかったので追加
 
 public class App {
 
-    private static final int WINDOW_WIDTH = 720;
-    private static final int WINDOW_HEIGHT = 960;
+    // private static final int WINDOW_WIDTH = 720;
+    // private static final int WINDOW_HEIGHT = 960;
 
     public static void main(String[] args) {
+		//ここから下も自動でサイズ変更をしたかったので追加しました。
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        // // 画面の高さの 80% をウィンドウの高さにする (大きすぎず小さすぎず)
+        int WINDOW_HEIGHT = (int) (screenSize.height * 0.9);
+        // // アスペクト比 3:4 (720:960) を維持して幅を計算
+        int WINDOW_WIDTH = (int) (WINDOW_HEIGHT * 0.75);
         // ゲームエンジンの作成
         // ゲームエンジンが Swing の処理を隠蔽する
         GameEngine engine = new GameEngine("Number Run", WINDOW_WIDTH, WINDOW_HEIGHT);
