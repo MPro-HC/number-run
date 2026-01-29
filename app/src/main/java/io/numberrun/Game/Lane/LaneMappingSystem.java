@@ -52,6 +52,15 @@ public class LaneMappingSystem implements GameSystem {
             // Transform に適用する
             transform.setPosition(globalX, globalY);
 
+            // zOrder もアップデートする
+            renderableOpt.ifPresent(renderable -> {
+                // Y は基本的に -0.5 ~ 0.5 なので、Lane の上に重ねる場合は単純にLane Y を足せばいい
+                // Lane Y は手前ほど大きくなるので自然と正しい順序になる
+                float newZOrder = (laneTransform.getLaneY() + 0.5f) / 2 + laneView.getZOrder();
+                renderable.setZOrder(newZOrder);
+            }
+            );
+
             // スケールも適用する（スケールが無効でない場合のみ）
             if (laneTransform.shouldScaleByZ()) {
                 transform.setScaleX(zScale);
