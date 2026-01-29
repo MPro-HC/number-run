@@ -11,17 +11,18 @@ public class WallView implements Renderable {
 
     private final float width;
     private final float height;
+
     private Color backgroundColor;
     private Color borderColor;
     private final Text text;
     private int zOrder = 0;
 
-    public WallView(float width, float height, Color backgroundColor, Color borderColor, Color textColor, String text) {
+    public WallView(float width, float height, Color backgroundColor, Color borderColor, Color textColor, String text, float textBorderWidth, Color textBorderColor) {
         this.width = width;
         this.height = height;
         this.backgroundColor = backgroundColor;
         this.borderColor = borderColor;
-        this.text = new Text(text, textColor, new Font("SansSerif", Font.BOLD, 48)); // デフォルトで黒色のテキスト
+        this.text = new Text(text, textColor, new Font("SansSerif", Font.BOLD, 96), 0, textBorderColor, textBorderWidth); // デフォルトで黒色のテキスト
     }
 
     @Override
@@ -69,6 +70,7 @@ public class WallView implements Renderable {
         this.text.setColor(color);
     }
 
+    @Override
     public void setZOrder(int zOrder) {
         this.zOrder = zOrder;
     }

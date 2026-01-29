@@ -4,6 +4,7 @@ import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
+import java.util.Optional;
 
 import io.numberrun.UI.Graphics;
 
@@ -17,6 +18,8 @@ public class Text implements Renderable {
     private Font font;
     private int zOrder;
     private boolean isCentered = true;
+    private Optional<Float> borderWidth = Optional.empty();
+    private Optional<Color> borderColor = Optional.empty();
 
     public Text(String text, Color color) {
         this(text, color, new Font("SansSerif", Font.PLAIN, 14), 0);
@@ -33,11 +36,34 @@ public class Text implements Renderable {
         this.zOrder = zOrder;
     }
 
+    public Text(String text, Color color, Font font, int zOrder, Color borderColor, float borderWidth) {
+        this.text = text;
+        this.color = color;
+        this.font = font;
+        this.zOrder = zOrder;
+        this.borderColor = Optional.of(borderColor);
+        this.borderWidth = Optional.of(borderWidth);
+    }
+
     @Override
     public void render(Graphics g) {
         if (this.isCentered) {
+            if (borderColor.isPresent() && borderWidth.isPresent()) {
+                g.drawTextCentered(
+                        text,
+                        0,
+                        0,
+                        color,
+                        font,
+                        borderColor.get(),
+                        borderWidth.get()
+                );
+                return;
+            }
+
             g.drawTextCentered(text, 0, 0, color, font);
         } else {
+            // どうせ使わない
             g.drawText(text, 0, 0, color, font);
         }
     }
@@ -89,7 +115,9 @@ public class Text implements Renderable {
         this.isCentered = isCentered;
     }
 
+    @Override
     public void setZOrder(int zOrder) {
         this.zOrder = zOrder;
     }
+
 }

@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 
+import io.numberrun.Component.Image;
 import io.numberrun.Component.Transform;
 import io.numberrun.Core.GameEngine;
 import io.numberrun.Game.GlobalCursor.GlobalCursorSystem;
@@ -23,7 +24,6 @@ import io.numberrun.System.World;   // 自動でサイズ変更したかった�
 public class App {
 
     public static void main(String[] args) {
-        //ここから下も自動でサイズ変更をしたかったので追加しました。
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         // 画面の高さの 80% をウィンドウの高さにする (大きすぎず小さすぎず)
         int WINDOW_HEIGHT = (int) (screenSize.height * 0.9);
@@ -38,13 +38,34 @@ public class App {
         World world = engine.getWorld();
 
         {
+            // 背景画像
+            world.spawn(
+                    new Transform(),
+                    new Image(
+                            App.class.getResource("/images/background.jpg"),
+                            WINDOW_WIDTH, WINDOW_HEIGHT
+                    ).withZOrder(-200)
+            );
+        }
+
+        {
+            // 奥行き感を出すためのグラデーション
+            world.spawn(
+                    new Transform(),
+                    new Image(
+                            App.class.getResource("/images/overlay_gradient.png"),
+                            WINDOW_WIDTH, WINDOW_HEIGHT
+                    ).withZOrder(50) // 上の方に置いとく
+            );
+        }
+        {
             // プレイヤーの表示
             world.spawn(
                     new PlayerState(),
                     new Transform(),
                     new LaneTransform(
                             0.0f, // X 座標 （中央)
-                            0.4f, // Y 座標 (下側)
+                            0.475f, // Y 座標 (下側)
                             false
                     ).setMovementLimit(-0.45f, 0.45f, -0.5f, 0.5f), // 左右移動の範囲を少し制限
                     new LaneVelocity(),
@@ -56,7 +77,7 @@ public class App {
             // 道路の表示
             world.spawn(
                     new Transform(0, 0),
-                    new LaneView(WINDOW_WIDTH, WINDOW_HEIGHT)
+                    new LaneView(WINDOW_WIDTH, WINDOW_HEIGHT).withZOrder(-100)
             );
         }
 

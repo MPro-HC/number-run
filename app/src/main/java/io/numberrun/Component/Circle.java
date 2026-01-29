@@ -41,6 +41,11 @@ public class Circle implements Renderable {
     }
 
     @Override
+    public void setZOrder(int zOrder) {
+        this.zOrder = zOrder;
+    }
+
+    @Override
     public float getWidth() {
         return radius * 2;
     }

@@ -1,7 +1,6 @@
 package io.numberrun.Game.Level;
 
 import java.awt.Color;
-import java.awt.Font;
 import java.util.List;
 import java.util.Random;
 
@@ -25,10 +24,10 @@ public class LevelSystem implements GameSystem {
 
     // レーンに壁などのオブジェクトを生成する処理と World に spawn する処理
     // 生成間隔（秒）
-    private static final float SPAWN_INTERVAL_SEC = 1.2f;
+    private static final float SPAWN_INTERVAL_SEC = 1.5f;
 
     // 壁が奥→手前に流れてくる速度（Lane座標 / 秒）
-    private static final float WALL_SPEED = 0.35f;
+    private static final float WALL_SPEED = 0.25f;
 
     // 生成位置・削除位置（LaneY）
     private static final float SPAWN_Y = -0.65f;   // 奥側ちょい外から出す
@@ -36,8 +35,6 @@ public class LevelSystem implements GameSystem {
 
     private static final float LEFT_X = -0.25f;
     private static final float RIGHT_X = 0.25f;
-
-    private static final Font WALL_FONT = new Font("SansSerif", Font.BOLD, 48);
 
     private final Random random = new Random();
     private float spawnTimer = 0f;
@@ -102,15 +99,20 @@ public class LevelSystem implements GameSystem {
 
         // 壁サイズ：レーン幅の半分
         int wallWidth = laneView.maxWidth() / 2;
-        int wallHeight = 200;
+        int wallHeight = 400;
 
         // 壁本体（親Entity）
         world.spawn(
                 new Transform(),
-                new WallView(wallWidth, wallHeight, bgColor,
+                new WallView(
+                        wallWidth * 0.98f, // ちょっと小さめに
+                        wallHeight,
+                        bgColor,
                         bgColor, // border color
                         textColor, // text color
-                        label
+                        label,
+                        6.0f, // text border width
+                        Color.black // text border color
                 ),
                 new LaneSize(0.5f, 0.1f), // レーン幅の半分、高さは適当
                 new LaneTransform(laneX, SPAWN_Y), // 奥から出す
@@ -147,34 +149,28 @@ public class LevelSystem implements GameSystem {
             case Multiply ->
                 "x" + value;
             case Divide ->
-                "/" + value;
+                "÷" + value;
         };
     }
 
     private Color wallTextColor(WallType type) {
-        return switch (type) {
-            case Add ->
-                new Color(0x18794E);       // 緑
-            case Subtract ->
-                new Color(0xCE2C31);  // 赤
-            case Multiply ->
-                new Color(0x0588F0);  // 青
-            case Divide ->
-                new Color(0x6E56CF);    // 紫
-        };
+        return Color.white;
     }
 
     private Color wallBgColor(WallType type) {
         // alpha 50 くらいで薄く
         return switch (type) {
             case Add ->
-                new Color(24, 121, 78, 50);
+                // #158adb
+                new Color(21, 138, 219, 200);
             case Subtract ->
-                new Color(229, 72, 77, 50);
+                // #df3d5b
+                new Color(223, 61, 91, 200);
             case Multiply ->
-                new Color(0, 144, 255, 50);
+                // #01f6dd
+                new Color(1, 246, 221, 200);
             case Divide ->
-                new Color(110, 86, 207, 50);
+                new Color(110, 86, 207, 200);
         };
     }
 }

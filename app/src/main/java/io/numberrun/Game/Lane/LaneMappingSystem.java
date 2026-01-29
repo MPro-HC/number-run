@@ -65,15 +65,14 @@ public class LaneMappingSystem implements GameSystem {
     private float calculateZScale(LaneTransform laneTransform, LaneView laneView) {
         // Lane Y 座標を正規化（-0.5が奥、0.5が手前）
         float normalizedY = laneTransform.getLaneY();
+        // 線形の補間値 t を計算
+        float t = (normalizedY - laneTransform.getMinY()) / (laneTransform.getMaxY() - laneTransform.getMinY());
 
         // 奥行きに応じたスケール計算
         // minY（-0.5、奥）→ minWidth / maxWidth = 0.5
         // maxY（0.5、手前）→ 1.0
         float minScale = (float) laneView.minWidth() / laneView.maxWidth();
         float maxScale = 1.0f;
-
-        // 線形の補間値 t を計算
-        float t = (normalizedY - laneTransform.getMinY()) / (laneTransform.getMaxY() - laneTransform.getMinY());
 
         // 遠近法補正済みの t を使用（Y座標と同じ基準でスケールを計算）
         float perspectiveT = calculatePerspectiveT(t, minScale);
@@ -82,13 +81,19 @@ public class LaneMappingSystem implements GameSystem {
     }
 
     // 遠近法を考慮したY座標の補間値を計算
-    // 見かけ上の移動速度を一定にするため、スケールに比例した移動量になるよう二次関数でマッピング
     private float calculatePerspectiveT(float t, float minScale) {
-        // perceived_speed = d(screenY)/dt / scale を一定にするには
-        // d(screenY)/dt ∝ scale である必要がある
-        // scale = minScale + (1 - minScale) * t を積分すると二次関数になる
-        // screenT = [2 * minScale * t + (1 - minScale) * t²] / (1 + minScale)
-        return (2.0f * minScale * t + (1.0f - minScale) * t * t) / (1.0f + minScale);
+        // thanks gemini
+        // 公式: pT = (m * t) / (1 - (1 - m) * t)
+        // m (minScale) が小さいほど、奥(t=0)への圧縮が強くなります。
+        float numerator = minScale * t;
+        float denominator = 1.0f - (1.0f - minScale) * t;
+
+        // ゼロ除算回避
+        if (denominator == 0.0f) {
+            return t;
+        }
+
+        return numerator / denominator;
     }
 
     // レーン上の x 座標から、グローバルな座標に変換する

@@ -23,11 +23,18 @@ public interface Renderable extends Component {
         return 0;
     }
 
+    void setZOrder(int zOrder);
+
     default float getWidth() {
         return 0;
     }
 
     default float getHeight() {
         return 0;
+    }
+
+    default Renderable withZOrder(int zOrder) {
+        setZOrder(zOrder);
+        return this;
     }
 }

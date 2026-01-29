@@ -14,17 +14,19 @@ public class PlayerView implements Renderable {
 
     private final Text playerNumberText;
     private final Oval shadowOval;
-    private final Color textColor = new Color(0x0965ef); // #0965ef
-    private final Font textFont = new Font("Arial", Font.BOLD, 48);
+    private final Color textColor = Color.white;
+    private final Font textFont = new Font("Arial", Font.BOLD, 64);
+    private final float textBorderWidth = 5.0f;
+    private final Color textBorderColor = Color.black;
     private float scale = 1.0f; // サイズのスケール
 
     public PlayerView(int playerNumber) {
-        this.playerNumberText = new Text(String.valueOf(playerNumber), textColor, textFont);
+        this.playerNumberText = new Text(String.valueOf(playerNumber), textColor, textFont, 0, textBorderColor, textBorderWidth);
         this.shadowOval = new Oval(40, 20, new Color(0x409bc0f9, true), true); // #9bc0f9
     }
 
     public PlayerView() {
-        this.playerNumberText = new Text("1", textColor, textFont);
+        this.playerNumberText = new Text("1", textColor, textFont, 0, textBorderColor, textBorderWidth);
         this.shadowOval = new Oval(40, 20, new Color(0x409bc0f9, true), true); // #9bc0f9
     }
 
@@ -44,6 +46,11 @@ public class PlayerView implements Renderable {
     @Override
     public int getZOrder() {
         return playerNumberText.getZOrder();
+    }
+
+    @Override
+    public void setZOrder(int zOrder) {
+        // pass
     }
 
     @Override

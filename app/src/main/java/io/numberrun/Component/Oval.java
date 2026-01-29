@@ -43,6 +43,11 @@ public class Oval implements Renderable {
     }
 
     @Override
+    public void setZOrder(int zOrder) {
+        this.zOrder = zOrder;
+    }
+
+    @Override
     public float getWidth() {
         return width;
     }
