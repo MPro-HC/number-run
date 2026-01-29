@@ -12,7 +12,7 @@ import io.numberrun.UI.Graphics;
 // 基本的に URL 経由で読みたい
 public class Image implements Renderable {
 
-    private int zOrder = 0;
+    private float zOrder = 0;
 
     private final java.awt.Image image;
     private Optional<Float> width = Optional.empty();
@@ -71,12 +71,12 @@ public class Image implements Renderable {
     }
 
     @Override
-    public int getZOrder() {
+    public float getZOrder() {
         return zOrder;
     }
 
     @Override
-    public void setZOrder(int zOrder) {
+    public void setZOrder(float zOrder) {
         this.zOrder = zOrder;
     }
 

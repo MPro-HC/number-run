@@ -44,12 +44,12 @@ public class PlayerView implements Renderable {
     }
 
     @Override
-    public int getZOrder() {
+    public float getZOrder() {
         return playerNumberText.getZOrder();
     }
 
     @Override
-    public void setZOrder(int zOrder) {
+    public void setZOrder(float zOrder) {
         // pass
     }
 

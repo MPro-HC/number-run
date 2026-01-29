@@ -16,7 +16,7 @@ public class Text implements Renderable {
     private String text;
     private Color color;
     private Font font;
-    private int zOrder;
+    private float zOrder;
     private boolean isCentered = true;
     private Optional<Float> borderWidth = Optional.empty();
     private Optional<Color> borderColor = Optional.empty();
@@ -29,14 +29,14 @@ public class Text implements Renderable {
         this(text, color, font, 0);
     }
 
-    public Text(String text, Color color, Font font, int zOrder) {
+    public Text(String text, Color color, Font font, float zOrder) {
         this.text = text;
         this.color = color;
         this.font = font;
         this.zOrder = zOrder;
     }
 
-    public Text(String text, Color color, Font font, int zOrder, Color borderColor, float borderWidth) {
+    public Text(String text, Color color, Font font, float zOrder, Color borderColor, float borderWidth) {
         this.text = text;
         this.color = color;
         this.font = font;
@@ -69,7 +69,7 @@ public class Text implements Renderable {
     }
 
     @Override
-    public int getZOrder() {
+    public float getZOrder() {
         return zOrder;
     }
 
@@ -116,7 +116,7 @@ public class Text implements Renderable {
     }
 
     @Override
-    public void setZOrder(int zOrder) {
+    public void setZOrder(float zOrder) {
         this.zOrder = zOrder;
     }
 

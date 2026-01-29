@@ -138,9 +138,9 @@ public class World {
                 .collect(Collectors.toList());
 
         rootRenderableEntities.sort((a, b) -> {
-            int za = a.getComponent(Renderable.class).map(Renderable::getZOrder).orElse(0);
-            int zb = b.getComponent(Renderable.class).map(Renderable::getZOrder).orElse(0);
-            return Integer.compare(za, zb);
+            float za = a.getComponent(Renderable.class).map(Renderable::getZOrder).orElse(0f);
+            float zb = b.getComponent(Renderable.class).map(Renderable::getZOrder).orElse(0f);
+            return Float.compare(za, zb);
         });
 
         for (Entity entity : rootRenderableEntities) {
@@ -184,9 +184,9 @@ public class World {
 
         // 子エンティティもZ-orderでソート
         children.sort((a, b) -> {
-            int za = a.getComponent(Renderable.class).map(Renderable::getZOrder).orElse(0);
-            int zb = b.getComponent(Renderable.class).map(Renderable::getZOrder).orElse(0);
-            return Integer.compare(za, zb);
+            float za = a.getComponent(Renderable.class).map(Renderable::getZOrder).orElse(0f);
+            float zb = b.getComponent(Renderable.class).map(Renderable::getZOrder).orElse(0f);
+            return Float.compare(za, zb);
         });
 
         for (Entity child : children) {

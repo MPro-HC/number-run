@@ -16,7 +16,7 @@ public class WallView implements Renderable {
     private List<Color> backgroundColors;
     private Color borderColor;
     private final Text text;
-    private int zOrder = 0;
+    private float zOrder = 0;
 
     public WallView(
             float width,
@@ -48,7 +48,7 @@ public class WallView implements Renderable {
     }
 
     @Override
-    public int getZOrder() {
+    public float getZOrder() {
         return zOrder;
     }
 
@@ -83,7 +83,7 @@ public class WallView implements Renderable {
     }
 
     @Override
-    public void setZOrder(int zOrder) {
+    public void setZOrder(float zOrder) {
         this.zOrder = zOrder;
     }
 

@@ -5,7 +5,7 @@ import io.numberrun.UI.Graphics;
 
 public class GameOverOverlay implements Renderable {
 
-    private int zOrder = 100;
+    private float zOrder = 100;
 
     @Override
     public void render(Graphics g) {
@@ -14,12 +14,12 @@ public class GameOverOverlay implements Renderable {
     }
 
     @Override
-    public void setZOrder(int zOrder) {
+    public void setZOrder(float zOrder) {
         this.zOrder = zOrder;
     }
 
     @Override
-    public int getZOrder() {
+    public float getZOrder() {
         return zOrder;
     }
 }

@@ -8,7 +8,7 @@ import io.numberrun.UI.Graphics;
 
 public class LaneView implements Renderable {
 
-    private int zOrder = -100;
+    private float zOrder = -100;
 
     private final Point topLeft;
     private final Point topRight;
@@ -118,12 +118,12 @@ public class LaneView implements Renderable {
     }
 
     @Override
-    public int getZOrder() {
+    public float getZOrder() {
         return zOrder; // 背景に近いほど小さい値
     }
 
     @Override
-    public void setZOrder(int zOrder) {
+    public void setZOrder(float zOrder) {
         this.zOrder = zOrder;
     }
 
@@ -140,7 +140,7 @@ public class LaneView implements Renderable {
     }
 
     @Override
-    public LaneView withZOrder(int zOrder) {
+    public LaneView withZOrder(float zOrder) {
         setZOrder(zOrder);
         return this;
     }

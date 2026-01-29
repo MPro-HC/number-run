@@ -10,7 +10,7 @@ public class Oval implements Renderable {
     private float height;
     private boolean filled;
     private Color color;
-    private int zOrder;
+    private float zOrder;
 
     public Oval(float width, float height, Color color) {
         this(width, height, color, true, 0);
@@ -20,7 +20,7 @@ public class Oval implements Renderable {
         this(width, height, color, filled, 0);
     }
 
-    public Oval(float width, float height, Color color, boolean filled, int zOrder) {
+    public Oval(float width, float height, Color color, boolean filled, float zOrder) {
         this.width = width;
         this.height = height;
         this.color = color;
@@ -38,12 +38,12 @@ public class Oval implements Renderable {
     }
 
     @Override
-    public int getZOrder() {
+    public float getZOrder() {
         return zOrder;
     }
 
     @Override
-    public void setZOrder(int zOrder) {
+    public void setZOrder(float zOrder) {
         this.zOrder = zOrder;
     }
 
