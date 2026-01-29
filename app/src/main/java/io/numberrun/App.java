@@ -8,6 +8,7 @@ import io.numberrun.Component.Image;
 import io.numberrun.Component.Transform;
 import io.numberrun.Core.GameEngine;
 import io.numberrun.Game.GlobalCursor.GlobalCursorSystem;
+import io.numberrun.Game.Grid.GridLineSpawnSystem;
 import io.numberrun.Game.Lane.LaneMappingSystem;
 import io.numberrun.Game.Lane.LaneMovementSystem;
 import io.numberrun.Game.Lane.LaneTransform;
@@ -74,11 +75,14 @@ public class App {
         }
 
         {
-            // 道路の表示
+            // レーンの表示
+            LaneView laneView = new LaneView(WINDOW_WIDTH, WINDOW_HEIGHT).withZOrder(-100);
             world.spawn(
                     new Transform(0, 0),
-                    new LaneView(WINDOW_WIDTH, WINDOW_HEIGHT).withZOrder(-100)
+                    laneView
             );
+            // グリッドを引いておく
+            GridLineSpawnSystem.setupInitialLines(world, laneView);
         }
 
         // システムの追加
@@ -88,6 +92,7 @@ public class App {
                 new LevelSystem(), // レベル進行・障害物生成システム
                 new LaneMovementSystem(),
                 new LaneMappingSystem(), // レーン上の座標と画面上の座標を変換するシステム
+                new GridLineSpawnSystem(), // レーン上にグリッドを表示する
                 new PlayerViewSyncSystem(),
                 new PlayerMovementSystem(), // プレイヤー操作 (キーが入力された時に速度を適用する)
                 new PlayerPassWallSystem() // プレイヤーが壁を通過したか判定するシステム

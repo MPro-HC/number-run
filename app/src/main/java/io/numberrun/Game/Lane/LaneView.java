@@ -38,7 +38,7 @@ public class LaneView implements Renderable {
 
     @Override
     public void render(Graphics g) {
-        // 灰色で背景塗りつぶし
+        // グラデーションで塗りつぶし
         g.fillPolygonGradientVertical(
                 new int[]{topLeft.x, topRight.x, bottomRight.x, bottomLeft.x},
                 new int[]{topLeft.y, topRight.y, bottomRight.y, bottomLeft.y},
@@ -52,8 +52,8 @@ public class LaneView implements Renderable {
         float borderWidthBottom = borderMaxWidth;
         g.fillPolygon(
                 new int[]{
-                    topLeft.x - (int) (borderWidthTop / 2), topLeft.x + (int) (borderWidthTop / 2),
-                    bottomLeft.x + (int) (borderWidthBottom / 2), bottomLeft.x - (int) (borderWidthBottom / 2)
+                    topLeft.x - (int) Math.ceil(borderWidthTop / 2), topLeft.x + (int) Math.ceil(borderWidthTop / 2),
+                    bottomLeft.x + (int) Math.ceil(borderWidthBottom / 2), bottomLeft.x - (int) Math.ceil(borderWidthBottom / 2)
                 },
                 new int[]{
                     topLeft.y, topLeft.y,
@@ -66,8 +66,48 @@ public class LaneView implements Renderable {
         // 同様
         g.fillPolygon(
                 new int[]{
-                    topRight.x - (int) (borderWidthTop / 2), topRight.x + (int) (borderWidthTop / 2),
-                    bottomRight.x + (int) (borderWidthBottom / 2), bottomRight.x - (int) (borderWidthBottom / 2)
+                    topRight.x - (int) Math.ceil(borderWidthTop / 2), topRight.x + (int) Math.ceil(borderWidthTop / 2),
+                    bottomRight.x + (int) Math.ceil(borderWidthBottom / 2), bottomRight.x - (int) Math.ceil(borderWidthBottom / 2)
+                },
+                new int[]{
+                    topRight.y, topRight.y,
+                    bottomRight.y, bottomRight.y
+                },
+                this.borderColor
+        );
+
+        // 追加で、グリッド用の縦線を追加する。25%, 50%, 75% の位置に配置する
+        float halfWidthTop = borderMinWidth / 5.0f;
+        float halfWidthBottom = borderMaxWidth / 5.0f;
+        g.fillPolygon(
+                new int[]{
+                    // 左から 25% = 左座標の 50%
+                    (int) Math.ceil(topLeft.x * 0.5 - halfWidthTop), (int) Math.ceil(topLeft.x * 0.5 + halfWidthTop),
+                    (int) Math.ceil(bottomLeft.x * 0.5 + halfWidthBottom), (int) Math.ceil(bottomLeft.x * 0.5 - halfWidthBottom)
+                },
+                new int[]{
+                    topLeft.y, topLeft.y,
+                    bottomLeft.y, bottomLeft.y
+                },
+                this.borderColor
+        );
+        // 同様に 50% = 中央ゼロ
+        g.fillPolygon(
+                new int[]{
+                    -(int) Math.ceil(halfWidthTop), (int) Math.ceil(halfWidthTop),
+                    (int) Math.ceil(halfWidthBottom), -(int) Math.ceil(halfWidthBottom)
+                },
+                new int[]{
+                    topLeft.y, topLeft.y,
+                    bottomLeft.y, bottomLeft.y
+                },
+                this.borderColor
+        );
+        // 右から 25% = 右座標の 50%
+        g.fillPolygon(
+                new int[]{
+                    (int) Math.ceil(topRight.x * 0.5 - halfWidthTop), (int) Math.ceil(topRight.x * 0.5 + halfWidthTop),
+                    (int) Math.ceil(bottomRight.x * 0.5 + halfWidthBottom), (int) Math.ceil(bottomRight.x * 0.5 - halfWidthBottom)
                 },
                 new int[]{
                     topRight.y, topRight.y,
@@ -97,5 +137,11 @@ public class LaneView implements Renderable {
 
     public int minWidth() {
         return topRight.x - topLeft.x;
+    }
+
+    @Override
+    public LaneView withZOrder(int zOrder) {
+        setZOrder(zOrder);
+        return this;
     }
 }

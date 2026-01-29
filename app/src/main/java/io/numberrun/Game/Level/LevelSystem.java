@@ -27,7 +27,7 @@ public class LevelSystem implements GameSystem {
     private static final float SPAWN_INTERVAL_SEC = 1.5f;
 
     // 壁が奥→手前に流れてくる速度（Lane座標 / 秒）
-    private static final float WALL_SPEED = 0.25f;
+    private static final float WALL_SPEED = 0.15f;
 
     // 生成位置・削除位置（LaneY）
     private static final float SPAWN_Y = -0.65f;   // 奥側ちょい外から出す
@@ -105,7 +105,7 @@ public class LevelSystem implements GameSystem {
         world.spawn(
                 new Transform(),
                 new WallView(
-                        wallWidth * 0.98f, // ちょっと小さめに
+                        wallWidth * 0.95f, // ちょっと小さめに
                         wallHeight,
                         bgColor,
                         bgColor, // border color
