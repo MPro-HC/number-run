@@ -86,16 +86,8 @@ public class PlayerPassWallSystem implements GameSystem {
     private void applyWallEffect(PlayerState playerState, Wall wall) {
         WallType type = wall.getWallType();
         int value = wall.getValue();
-
-        switch (type) {
-            case Add ->
-                playerState.addNumber(value);
-            case Subtract ->
-                playerState.subtractNumber(value);
-            case Multiply ->
-                playerState.multiplyNumber(value);
-            case Divide ->
-                playerState.divideNumber(value);
-        }
+        playerState.setNumber(
+                type.getAppliedNumber(playerState.getNumber(), value)
+        );
     }
 }

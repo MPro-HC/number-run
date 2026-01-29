@@ -36,6 +36,19 @@ public class Graphics {
     }
 
     /**
+     * グラデーションの四角
+     */
+    public void fillGradientRectVertical(float x, float y, float width, float height, Color colorTop, Color colorBottom) {
+        GradientPaint gradientPaint = new GradientPaint(
+                0, y, colorTop,
+                0, y + height, colorBottom
+        );
+        g2d.setPaint(gradientPaint);
+
+        g2d.fillRect((int) x, (int) y, (int) width, (int) height);
+    }
+
+    /**
      * 矩形の枠線を描画
      */
     public void drawRect(float x, float y, float width, float height, Color color) {

@@ -51,7 +51,7 @@ public class GridLineSpawnSystem implements GameSystem {
         for (Entity entity : lineEntities) {
             LaneTransform laneTransform = entity.getComponent(LaneTransform.class).get();
             // LaneYが一定以上手前に来たら削除
-            if (laneTransform.getLaneY() > 0.6f) {
+            if (laneTransform.getLaneY() > 0.5f) {
                 entity.destroy();
             }
         }

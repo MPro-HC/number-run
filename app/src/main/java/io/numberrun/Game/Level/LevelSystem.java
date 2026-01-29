@@ -1,6 +1,5 @@
 package io.numberrun.Game.Level;
 
-import java.awt.Color;
 import java.util.List;
 import java.util.Random;
 
@@ -91,11 +90,7 @@ public class LevelSystem implements GameSystem {
         int value = randomWallValue(type);
 
         // 表示テキスト
-        String label = wallLabel(type, value);
-
-        // 見た目（色）
-        Color textColor = wallTextColor(type);
-        Color bgColor = wallBgColor(type);
+        String label = type.label() + value;
 
         // 壁サイズ：レーン幅の半分
         int wallWidth = laneView.maxWidth() / 2;
@@ -107,12 +102,12 @@ public class LevelSystem implements GameSystem {
                 new WallView(
                         wallWidth * 0.95f, // ちょっと小さめに
                         wallHeight,
-                        bgColor,
-                        bgColor, // border color
-                        textColor, // text color
+                        List.of(type.backgroundColorStart(), type.backgroundColorEnd()), // background colors
+                        type.borderColor(), // border color
+                        type.textColor(), // text color
                         label,
-                        6.0f, // text border width
-                        Color.black // text border color
+                        type.textBorderWidth(), // text border width
+                        type.textBorderColor() // text border color
                 ),
                 new LaneSize(0.5f, 0.1f), // レーン幅の半分、高さは適当
                 new LaneTransform(laneX, SPAWN_Y), // 奥から出す
@@ -140,37 +135,4 @@ public class LevelSystem implements GameSystem {
         };
     }
 
-    private String wallLabel(WallType type, int value) {
-        return switch (type) {
-            case Add ->
-                "+" + value;
-            case Subtract ->
-                "-" + value;
-            case Multiply ->
-                "x" + value;
-            case Divide ->
-                "÷" + value;
-        };
-    }
-
-    private Color wallTextColor(WallType type) {
-        return Color.white;
-    }
-
-    private Color wallBgColor(WallType type) {
-        // alpha 50 くらいで薄く
-        return switch (type) {
-            case Add ->
-                // #158adb
-                new Color(21, 138, 219, 200);
-            case Subtract ->
-                // #df3d5b
-                new Color(223, 61, 91, 200);
-            case Multiply ->
-                // #01f6dd
-                new Color(1, 246, 221, 200);
-            case Divide ->
-                new Color(110, 86, 207, 200);
-        };
-    }
 }
