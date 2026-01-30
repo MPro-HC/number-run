@@ -1,6 +1,7 @@
 package io.numberrun.Game.Level;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 import io.numberrun.Component.Transform;
@@ -8,6 +9,9 @@ import io.numberrun.Game.Lane.LaneSize;
 import io.numberrun.Game.Lane.LaneTransform;
 import io.numberrun.Game.Lane.LaneVelocity;
 import io.numberrun.Game.Lane.LaneView;
+import io.numberrun.Game.Scene.Scene;
+import io.numberrun.Game.Scene.SceneState;
+import io.numberrun.Game.Scene.SceneType;
 import io.numberrun.Game.Wall.Wall;
 import io.numberrun.Game.Wall.WallType;
 import io.numberrun.Game.Wall.WallView;
@@ -46,6 +50,15 @@ public class LevelSystem implements GameSystem {
 
     @Override
     public void update(World world, float deltaTime) {
+        // シーンがゲームプレイ中でないなら何もしない
+        Optional<Entity> sceneEntity = world.query(Scene.class, SceneState.class).stream().findFirst();
+        if (sceneEntity.isEmpty()) {
+            return;
+        }
+        if (sceneEntity.get().getComponent(SceneState.class).get().getCurrentScene() != SceneType.GAMEPLAY) {
+            return;
+        }
+
         // LaneView が無いと壁の幅を決められないので何もしない
         List<Entity> laneEntities = world.query(LaneView.class);
         if (laneEntities.isEmpty()) {

@@ -7,20 +7,22 @@ import java.awt.Toolkit;
 import io.numberrun.Component.Image;
 import io.numberrun.Component.Transform;
 import io.numberrun.Core.GameEngine;
+import io.numberrun.Game.GameOver.GameOverExitSystem;
+import io.numberrun.Game.GameOver.GameOverSystem;
 import io.numberrun.Game.GlobalCursor.GlobalCursorSystem;
 import io.numberrun.Game.Grid.GridLineSpawnSystem;
 import io.numberrun.Game.Lane.LaneMappingSystem;
 import io.numberrun.Game.Lane.LaneMovementSystem;
-import io.numberrun.Game.Lane.LaneTransform;
-import io.numberrun.Game.Lane.LaneVelocity;
 import io.numberrun.Game.Lane.LaneView;
 import io.numberrun.Game.Level.LevelSystem;
 import io.numberrun.Game.Player.PlayerMovementSystem;
 import io.numberrun.Game.Player.PlayerPassWallSystem;
-import io.numberrun.Game.Player.PlayerState;
 import io.numberrun.Game.Player.PlayerView;
-import io.numberrun.Game.Player.PlayerViewSyncSystem; // 自動でサイズ変更したかったので追加
-import io.numberrun.System.World;   // 自動でサイズ変更したかったので追加
+import io.numberrun.Game.Player.PlayerViewSyncSystem;
+import io.numberrun.Game.Scene.Scene;
+import io.numberrun.Game.Scene.SceneState;
+import io.numberrun.Game.Scene.SceneType; // 自動でサイズ変更したかったので追加
+import io.numberrun.System.World;
 
 public class App {
 
@@ -37,6 +39,15 @@ public class App {
 
         // World が全てのエンティティやロジックを管理
         World world = engine.getWorld();
+
+        {
+            // シーンに関する情報をもつエンティティを置いておく
+            // 本来なら Resource とかで管理すべきだけど、まあ
+            world.spawn(
+                    new Scene(),
+                    new SceneState(SceneType.GAMEPLAY)
+            );
+        }
 
         {
             // 背景画像
@@ -61,17 +72,7 @@ public class App {
         }
         {
             // プレイヤーの表示
-            world.spawn(
-                    new PlayerState(),
-                    new Transform(),
-                    new LaneTransform(
-                            0.0f, // X 座標 （中央)
-                            0.475f, // Y 座標 (下側)
-                            false
-                    ).setMovementLimit(-0.45f, 0.45f, -0.5f, 0.5f), // 左右移動の範囲を少し制限
-                    new LaneVelocity(),
-                    new PlayerView()
-            );
+            PlayerView.setupInitialPlayer(world);
         }
 
         {
@@ -95,7 +96,12 @@ public class App {
                 new GridLineSpawnSystem(), // レーン上にグリッドを表示する
                 new PlayerViewSyncSystem(),
                 new PlayerMovementSystem(), // プレイヤー操作 (キーが入力された時に速度を適用する)
-                new PlayerPassWallSystem() // プレイヤーが壁を通過したか判定するシステム
+                new PlayerPassWallSystem(), // プレイヤーが壁を通過したか判定するシステム
+                new GameOverSystem(
+                        WINDOW_WIDTH,
+                        WINDOW_HEIGHT
+                ), // ゲームオーバー判定と処理
+                new GameOverExitSystem()
         );
 
         // ゲーム開始

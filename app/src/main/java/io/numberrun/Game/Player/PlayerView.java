@@ -8,6 +8,10 @@ import java.awt.geom.AffineTransform;
 import io.numberrun.Component.Oval;
 import io.numberrun.Component.Renderable;
 import io.numberrun.Component.Text;
+import io.numberrun.Component.Transform;
+import io.numberrun.Game.Lane.LaneTransform;
+import io.numberrun.Game.Lane.LaneVelocity;
+import io.numberrun.System.World;
 import io.numberrun.UI.Graphics;
 
 public class PlayerView implements Renderable {
@@ -75,5 +79,19 @@ public class PlayerView implements Renderable {
 
     public float getScale() {
         return this.scale;
+    }
+
+    public static void setupInitialPlayer(World world) {
+        world.spawn(
+                new PlayerState(),
+                new Transform(),
+                new LaneTransform(
+                        0.0f, // X 座標 （中央)
+                        0.475f, // Y 座標 (下側)
+                        false
+                ).setMovementLimit(-0.45f, 0.45f, -0.5f, 0.5f), // 左右移動の範囲を少し制限
+                new LaneVelocity(),
+                new PlayerView()
+        );
     }
 }

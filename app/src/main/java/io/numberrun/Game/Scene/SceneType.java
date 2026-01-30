@@ -1,7 +1,10 @@
 package io.numberrun.Game.Scene;
 
-public enum SceneType {
-    MAIN_MENU,
+import io.numberrun.Component.Component;
+
+public enum SceneType implements Component {
+    TITLE,
     GAMEPLAY,
     GAME_OVER;
+
 }
