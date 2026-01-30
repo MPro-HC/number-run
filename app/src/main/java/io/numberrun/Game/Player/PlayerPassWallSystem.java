@@ -3,6 +3,7 @@ package io.numberrun.Game.Player;
 // プレイヤーが壁を通過したときの処理を管理するシステム
 import java.util.List;
 
+import io.numberrun.Core.SoundManager;
 import io.numberrun.Game.Effect.DamageEffectSystem;
 import io.numberrun.Game.Effect.PowerUpEffectSystem;
 import io.numberrun.Game.Lane.LaneSize;
@@ -96,9 +97,11 @@ public class PlayerPassWallSystem implements GameSystem {
             // 値が減少したらダメージエフェクトを出す
             if (newNumber < previousNumber) {
                 DamageEffectSystem.spawnDamageEffect(world, windowWidth, windowHeight);
+				SoundManager.play("/sounds/damage.wav"); 
             } else if (newNumber > previousNumber) {
                 // 値が増加したらパワーアップエフェクトを出す
                 PowerUpEffectSystem.spawnPowerUpEffect(world, windowWidth, windowHeight);
+				SoundManager.play("/sounds/powerup.wav");
             }
 
             // 4.2 壁エンティティを world から削除する (無効化する)
