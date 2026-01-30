@@ -9,6 +9,9 @@ import io.numberrun.System.Entity;
 import io.numberrun.System.GameSystem;
 import io.numberrun.System.SystemPriority;
 import io.numberrun.System.World;
+import io.numberrun.UI.InputEvent;
+import io.numberrun.UI.InputState;
+import io.numberrun.UI.InputType;
 
 public class GameOverAdSystem implements GameSystem {
 
@@ -33,13 +36,18 @@ public class GameOverAdSystem implements GameSystem {
             easing.tick(deltaTime * 1000);
 
             // 座標を更新する
-            float easeValue = easing.easeInOut();
+            float easeValue = easing.easeOutSine();
             float initialY = initialYValue.getValue(); // 初期のY座標 == 画面下端
             if (ad.isExiting()) {
                 // 退場
-                // 0 -> 1 で 中央から画面上へ移動
-                float newY = initialY * easeValue * -1.0f;
+                // 0 -> 1 で 中央から画面下へ移動
+                float newY = initialY * easeValue;
                 transform.setY(newY);
+
+                // もし easing が終了したら破棄する
+                if (easing.isFinished()) {
+                    entity.destroy();
+                }
             } else {
                 // 入場
                 // 0 -> 1 で 画面下から中央へ移動
@@ -49,4 +57,32 @@ public class GameOverAdSystem implements GameSystem {
             }
         }
     }
+
+    @Override
+    public void onInput(World world, InputEvent event, InputState inputState) {
+        // マウスクリックイベントのみ処理
+        if (event.getType() != InputType.MOUSE_CLICKED) {
+            return;
+        }
+
+        // 画面がクリックされたら広告を退場させる
+        List<Entity> ads = world.query(GameOverAd.class, Easing.class);
+
+        for (Entity entity : ads) {
+            GameOverAd ad = entity.getComponent(GameOverAd.class).get();
+            Easing easing = entity.getComponent(Easing.class).get();
+
+            // 既に退場中の場合はスキップ
+            if (ad.isExiting()) {
+                continue;
+            }
+
+            // 退場フラグをセット
+            ad.setExiting(true);
+
+            // Easingをリセットして退場アニメーションを開始
+            easing.restart();
+        }
+    }
+
 }

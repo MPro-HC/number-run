@@ -54,4 +54,8 @@ public class GameOverAd implements Renderable {
         return isExiting;
     }
 
+    public void setExiting(boolean exiting) {
+        this.isExiting = exiting;
+    }
+
 }
