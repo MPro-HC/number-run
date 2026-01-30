@@ -122,7 +122,7 @@ public class GameOverSystem implements GameSystem {
                                 Timer.TimerMode.Once
                         )
                 ), // 入退場アニメーション
-                new NamedValue<Float>("initialY", (float) windowHeight)
+                new NamedValue<>("initialY", (float) windowHeight)
         );
     }
 }
