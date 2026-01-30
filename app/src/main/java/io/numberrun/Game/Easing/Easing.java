@@ -28,6 +28,11 @@ public class Easing implements Component {
                 : -1 + (4 - 2 * progress) * progress;
     }
 
+    public float easeIn() {
+        float p = progress();
+        return p * p * p;
+    }
+
     public float easeOutCubic() {
         float p = progress() - 1;
         return p * p * p + 1;

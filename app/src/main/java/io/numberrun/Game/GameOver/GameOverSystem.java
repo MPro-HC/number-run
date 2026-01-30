@@ -5,7 +5,10 @@ import java.util.List;
 
 import io.numberrun.Component.GradientRectangle;
 import io.numberrun.Component.Image;
+import io.numberrun.Component.NamedValue;
+import io.numberrun.Component.Timer;
 import io.numberrun.Component.Transform;
+import io.numberrun.Game.Easing.Easing;
 import io.numberrun.Game.Lane.LaneVelocity;
 import io.numberrun.Game.Player.PlayerState;
 import io.numberrun.Game.Scene.SceneState;
@@ -62,6 +65,7 @@ public class GameOverSystem implements GameSystem {
         // SceneState に GameOver をセットする
         if (playerState.getNumber() <= 0) {
             enterGameOverScene(world);
+
         }
     }
 
@@ -84,6 +88,8 @@ public class GameOverSystem implements GameSystem {
         // 3. ゲームオーバーのオーバーレイをスポーンする
         spawnGameOverOverlay(world);
 
+        // 広告を表示する
+        spawnGameOverAd(world);
     }
 
     private void spawnGameOverOverlay(World world) {
@@ -100,6 +106,23 @@ public class GameOverSystem implements GameSystem {
                         windowWidth, windowHeight
                 ).withZOrder(201),
                 new Transform()
+        );
+    }
+
+    private void spawnGameOverAd(World world) {
+        world.spawn(
+                new GameOverAd((int) Math.round(windowWidth * 0.9), (int) Math.round(windowHeight * 0.9)).withZOrder(205),
+                new Transform(
+                        0,
+                        windowHeight // 画面の下側に登場させる
+                ),
+                new Easing(
+                        new Timer(
+                                1000, // ms
+                                Timer.TimerMode.Once
+                        )
+                ), // 入退場アニメーション
+                new NamedValue<Float>("initialY", (float) windowHeight)
         );
     }
 }
