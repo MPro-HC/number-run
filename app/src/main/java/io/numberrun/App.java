@@ -7,6 +7,7 @@ import java.awt.Toolkit;
 import io.numberrun.Component.Image;
 import io.numberrun.Component.Transform;
 import io.numberrun.Core.GameEngine;
+import io.numberrun.Game.Effect.DamageEffectSystem;
 import io.numberrun.Game.GameOver.GameOverExitSystem;
 import io.numberrun.Game.GameOver.GameOverSystem;
 import io.numberrun.Game.GlobalCursor.GlobalCursorSystem;
@@ -96,12 +97,16 @@ public class App {
                 new GridLineSpawnSystem(), // レーン上にグリッドを表示する
                 new PlayerViewSyncSystem(),
                 new PlayerMovementSystem(), // プレイヤー操作 (キーが入力された時に速度を適用する)
-                new PlayerPassWallSystem(), // プレイヤーが壁を通過したか判定するシステム
+                new PlayerPassWallSystem(
+                        WINDOW_WIDTH,
+                        WINDOW_HEIGHT
+                ), // プレイヤーが壁を通過したか判定するシステム
                 new GameOverSystem(
                         WINDOW_WIDTH,
                         WINDOW_HEIGHT
                 ), // ゲームオーバー判定と処理
-                new GameOverExitSystem()
+                new GameOverExitSystem(),
+                new DamageEffectSystem()
         );
 
         // ゲーム開始

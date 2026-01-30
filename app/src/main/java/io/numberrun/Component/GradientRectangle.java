@@ -11,6 +11,8 @@ public class GradientRectangle implements Renderable {
 
     private float width;
     private float height;
+    private final Color initialColorTop;
+    private final Color initialColorBottom;
     private Color colorTop;
     private Color colorBottom;
     private float zOrder;
@@ -22,6 +24,8 @@ public class GradientRectangle implements Renderable {
     public GradientRectangle(float width, float height, Color colorTop, Color colorBottom, float zOrder) {
         this.width = width;
         this.height = height;
+        this.initialColorTop = colorTop;
+        this.initialColorBottom = colorBottom;
         this.colorTop = colorTop;
         this.colorBottom = colorBottom;
         this.zOrder = zOrder;
@@ -71,7 +75,25 @@ public class GradientRectangle implements Renderable {
         this.colorBottom = colorBottom;
     }
 
+    @Override
     public void setZOrder(float zOrder) {
         this.zOrder = zOrder;
+    }
+
+    public void setOpacity(float opacity) {
+        int alphaTop = Math.min(255, Math.max(0, (int) (initialColorTop.getAlpha() * opacity)));
+        int alphaBottom = Math.min(255, Math.max(0, (int) (initialColorBottom.getAlpha() * opacity)));
+        this.colorTop = new Color(
+                initialColorTop.getRed(),
+                initialColorTop.getGreen(),
+                initialColorTop.getBlue(),
+                alphaTop
+        );
+        this.colorBottom = new Color(
+                initialColorBottom.getRed(),
+                initialColorBottom.getGreen(),
+                initialColorBottom.getBlue(),
+                alphaBottom
+        );
     }
 }
