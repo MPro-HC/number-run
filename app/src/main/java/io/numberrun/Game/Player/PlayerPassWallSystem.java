@@ -91,6 +91,10 @@ public class PlayerPassWallSystem implements GameSystem {
 
             // 4.1 通過していたら、Wall の効果を PlayerState に適用する
             applyWallEffect(playerState, wall);
+			// 追加: 割り算の結果が 1 になった場合はゲームオーバーとする (値を0にする)
+            //if (wall.getWallType() == WallType.Divide && playerState.getNumber() == 1) {
+            //    playerState.setNumber(0);
+            //}
 
             int newNumber = playerState.getNumber();
 

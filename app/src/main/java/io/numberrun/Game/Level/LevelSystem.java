@@ -25,16 +25,10 @@ import io.numberrun.System.World;
  */
 public class LevelSystem implements GameSystem {
 
-    // レーンに壁などのオブジェクトを生成する処理と World に spawn する処理
-    // 生成間隔（秒）
     private static final float SPAWN_INTERVAL_SEC = 1.5f;
-
-    // 壁が奥→手前に流れてくる速度（Lane座標 / 秒）
     private static final float WALL_SPEED = 0.15f;
-
-    // 生成位置・削除位置（LaneY）
-    private static final float SPAWN_Y = -0.65f;   // 奥側ちょい外から出す
-    private static final float DESPAWN_Y = 0.80f;  // 手前側に抜けたら消す
+    private static final float SPAWN_Y = -0.65f;
+    private static final float DESPAWN_Y = 0.80f; 
 
     private static final float LEFT_X = -0.25f;
     private static final float RIGHT_X = 0.25f;
@@ -44,7 +38,6 @@ public class LevelSystem implements GameSystem {
 
     @Override
     public int getPriority() {
-        // 生成は別に早くても遅くても良いが、DEFAULTにしておく
         return SystemPriority.DEFAULT.getPriority();
     }
 
@@ -59,7 +52,6 @@ public class LevelSystem implements GameSystem {
             return;
         }
 
-        // LaneView が無いと壁の幅を決められないので何もしない
         List<Entity> laneEntities = world.query(LaneView.class);
         if (laneEntities.isEmpty()) {
             return;
@@ -70,21 +62,19 @@ public class LevelSystem implements GameSystem {
         // 画面外に抜けた壁を削除
         cleanupWalls(world);
 
-        // 生成タイマー更新
-        spawnTimer += deltaTime;
-
         // 壁が多すぎるときは生成しない（保険）
         int wallCount = world.query(Wall.class).size();
         if (wallCount > 30) {
             return;
         }
 
-        // 一定間隔で「左右に1枚ずつ」生成
+        // 生成タイマー更新
+        spawnTimer += deltaTime;
+
+        // 一定間隔で「左右のペア」を生成
         while (spawnTimer >= SPAWN_INTERVAL_SEC) {
             spawnTimer -= SPAWN_INTERVAL_SEC;
-
-            spawnWall(world, laneView, LEFT_X);
-            spawnWall(world, laneView, RIGHT_X);
+            spawnWallPair(world, laneView);
         }
     }
 
@@ -97,9 +87,32 @@ public class LevelSystem implements GameSystem {
         }
     }
 
-    private void spawnWall(World world, LaneView laneView, float laneX) {
+    // 悪い壁かどうか判定 (減算または除算)
+    private boolean isBadWall(WallType type) {
+        return type == WallType.Subtract || type == WallType.Divide;
+    }
+
+    // 良い壁をランダムに取得 (足し算または掛け算)
+    private WallType randomGoodWallType() {
+        return random.nextBoolean() ? WallType.Add : WallType.Multiply;
+    }
+
+    private void spawnWallPair(World world, LaneView laneView) {
+        WallType leftType = randomWallType();
+        WallType rightType = randomWallType();
+
+        // 両方とも「悪い壁」になってしまった場合、右側を強制的に「良い壁」にする
+        if (isBadWall(leftType) && isBadWall(rightType)) {
+            rightType = randomGoodWallType();
+        }
+
+        spawnWall(world, laneView, LEFT_X, leftType);
+        spawnWall(world, laneView, RIGHT_X, rightType);
+    }
+    
+    // 引数に WallType type を追加しました
+    private void spawnWall(World world, LaneView laneView, float laneX, WallType type) {
         // 種類と値を決める
-        WallType type = randomWallType();
         int value = randomWallValue(type);
 
         // 表示テキスト
@@ -135,17 +148,11 @@ public class LevelSystem implements GameSystem {
     }
 
     private int randomWallValue(WallType type) {
-        // ここはゲームバランスなので適当に調整してOK
         return switch (type) {
-            case Add ->
-                1 + random.nextInt(9);       // +1..+9
-            case Subtract ->
-                1 + random.nextInt(9);  // -1..-9
-            case Multiply ->
-                2 + random.nextInt(4);  // x2..x5
-            case Divide ->
-                2 + random.nextInt(3);    // /2../4
+            case Add -> 1 + random.nextInt(9);
+            case Subtract -> 1 + random.nextInt(9);
+            case Multiply -> 2 + random.nextInt(4);
+            case Divide -> 2 + random.nextInt(3);
         };
     }
-
 }
