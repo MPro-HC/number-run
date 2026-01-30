@@ -98,8 +98,12 @@ public class PlayerPassWallSystem implements GameSystem {
             // 値が減少したらダメージエフェクトを出す
             if (newNumber < previousNumber) {
                 DamageEffectSystem.spawnDamageEffect(world, windowWidth, windowHeight);
-				if (newNumber > 0) {
-                    SoundManager.play("/sounds/damage.wav");
+				if (newNumber <= 0) {
+                     // ゲームオーバーになった場合
+                     SoundManager.play("/sounds/dam.wav");
+                } else {
+                     // まだ生きている（ダメージのみ）場合
+                     SoundManager.play("/sounds/damage.wav");
                 }
             } else if (newNumber > previousNumber) {
                 // 値が増加したらパワーアップエフェクトを出す
