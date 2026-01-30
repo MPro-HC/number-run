@@ -9,7 +9,7 @@ public class Circle implements Renderable {
     private float radius;
     private boolean filled;
     private Color color;
-    private int zOrder;
+    private float zOrder;
 
     public Circle(float radius, Color color) {
         this(radius, color, true, 0);
@@ -19,7 +19,7 @@ public class Circle implements Renderable {
         this(radius, color, filled, 0);
     }
 
-    public Circle(float radius, Color color, boolean filled, int zOrder) {
+    public Circle(float radius, Color color, boolean filled, float zOrder) {
         this.radius = radius;
         this.color = color;
         this.filled = filled;
@@ -36,8 +36,13 @@ public class Circle implements Renderable {
     }
 
     @Override
-    public int getZOrder() {
+    public float getZOrder() {
         return zOrder;
+    }
+
+    @Override
+    public void setZOrder(float zOrder) {
+        this.zOrder = zOrder;
     }
 
     @Override

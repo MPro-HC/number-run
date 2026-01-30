@@ -8,13 +8,18 @@ import io.numberrun.UI.Graphics;
 
 public class LaneView implements Renderable {
 
+    private float zOrder = -100;
+
     private final Point topLeft;
     private final Point topRight;
     private final Point bottomLeft;
     private final Point bottomRight;
 
-    private final Color borderColor = new Color(0x0090FF);
-    private final Color backgroundColor = new Color(0xFBFDFF);
+    private final Color borderColor = new Color(0x3bb1e4);
+    private final Color backgroundColorStart = new Color(0x021550);// new Color(0xE0F7FF);
+    private final Color backgroundColorEnd = new Color(0x09335d);// new Color(0xFBFDFF);
+    private final float borderMinWidth = 4.0f;
+    private final float borderMaxWidth = 20.0f;
 
     public LaneView(
             int width,
@@ -25,31 +30,101 @@ public class LaneView implements Renderable {
         // bottom-left: (width * 0.0, height)
         // bottom-right: (width * 1.0, height)
 
-        this.topLeft = new Point((int) (-width * 0.25f), (int) (-height / 2f));
-        this.topRight = new Point((int) (width * 0.25f), (int) (-height / 2f));
-        this.bottomLeft = new Point((int) (-width * 0.5f), (int) (height / 2));
-        this.bottomRight = new Point((int) (width * 0.5f), (int) (height / 2));
+        this.topLeft = new Point((int) (-width * 0.05f), (int) (-height / 2f));
+        this.topRight = new Point((int) (width * 0.05f), (int) (-height / 2f)); // 上の方はだいぶ細くしていい
+        this.bottomLeft = new Point((int) (-width * (0.6f)), (int) (height / 2));
+        this.bottomRight = new Point((int) (width * (0.6f)), (int) (height / 2)); // 実際ちょっと画面からはみ出すようにしている
     }
 
     @Override
     public void render(Graphics g) {
-        // 灰色で背景塗りつぶし
-        g.fillPolygon(
+        // グラデーションで塗りつぶし
+        g.fillPolygonGradientVertical(
                 new int[]{topLeft.x, topRight.x, bottomRight.x, bottomLeft.x},
                 new int[]{topLeft.y, topRight.y, bottomRight.y, bottomLeft.y},
-                this.backgroundColor
+                this.backgroundColorStart,
+                this.backgroundColorEnd
         );
 
         // top-left -> bottom-left にかけての line
-        g.drawLine(topLeft.x, topLeft.y, bottomLeft.x, bottomLeft.y, this.borderColor);
-        // top-right -> bottom-right にかけての line
-        g.drawLine(topRight.x, topRight.y, bottomRight.x, bottomRight.y, this.borderColor);
+        // 手前に行くほど太く、奥に行くほど太くするため多角形で表現する
+        float borderWidthTop = borderMinWidth;
+        float borderWidthBottom = borderMaxWidth;
+        g.fillPolygon(
+                new int[]{
+                    topLeft.x - (int) Math.ceil(borderWidthTop / 2), topLeft.x + (int) Math.ceil(borderWidthTop / 2),
+                    bottomLeft.x + (int) Math.ceil(borderWidthBottom / 2), bottomLeft.x - (int) Math.ceil(borderWidthBottom / 2)
+                },
+                new int[]{
+                    topLeft.y, topLeft.y,
+                    bottomLeft.y, bottomLeft.y
+                },
+                this.borderColor
+        );
 
+        // top-right -> bottom-right にかけての line
+        // 同様
+        g.fillPolygon(
+                new int[]{
+                    topRight.x - (int) Math.ceil(borderWidthTop / 2), topRight.x + (int) Math.ceil(borderWidthTop / 2),
+                    bottomRight.x + (int) Math.ceil(borderWidthBottom / 2), bottomRight.x - (int) Math.ceil(borderWidthBottom / 2)
+                },
+                new int[]{
+                    topRight.y, topRight.y,
+                    bottomRight.y, bottomRight.y
+                },
+                this.borderColor
+        );
+
+        // 追加で、グリッド用の縦線を追加する。25%, 50%, 75% の位置に配置する
+        float halfWidthTop = borderMinWidth / 5.0f;
+        float halfWidthBottom = borderMaxWidth / 5.0f;
+        g.fillPolygon(
+                new int[]{
+                    // 左から 25% = 左座標の 50%
+                    (int) Math.ceil(topLeft.x * 0.5 - halfWidthTop), (int) Math.ceil(topLeft.x * 0.5 + halfWidthTop),
+                    (int) Math.ceil(bottomLeft.x * 0.5 + halfWidthBottom), (int) Math.ceil(bottomLeft.x * 0.5 - halfWidthBottom)
+                },
+                new int[]{
+                    topLeft.y, topLeft.y,
+                    bottomLeft.y, bottomLeft.y
+                },
+                this.borderColor
+        );
+        // 同様に 50% = 中央ゼロ
+        g.fillPolygon(
+                new int[]{
+                    -(int) Math.ceil(halfWidthTop), (int) Math.ceil(halfWidthTop),
+                    (int) Math.ceil(halfWidthBottom), -(int) Math.ceil(halfWidthBottom)
+                },
+                new int[]{
+                    topLeft.y, topLeft.y,
+                    bottomLeft.y, bottomLeft.y
+                },
+                this.borderColor
+        );
+        // 右から 25% = 右座標の 50%
+        g.fillPolygon(
+                new int[]{
+                    (int) Math.ceil(topRight.x * 0.5 - halfWidthTop), (int) Math.ceil(topRight.x * 0.5 + halfWidthTop),
+                    (int) Math.ceil(bottomRight.x * 0.5 + halfWidthBottom), (int) Math.ceil(bottomRight.x * 0.5 - halfWidthBottom)
+                },
+                new int[]{
+                    topRight.y, topRight.y,
+                    bottomRight.y, bottomRight.y
+                },
+                this.borderColor
+        );
     }
 
     @Override
-    public int getZOrder() {
-        return -100; // 背景に近いほど小さい値
+    public float getZOrder() {
+        return zOrder; // 背景に近いほど小さい値
+    }
+
+    @Override
+    public void setZOrder(float zOrder) {
+        this.zOrder = zOrder;
     }
 
     public int maxWidth() {
@@ -62,5 +137,11 @@ public class LaneView implements Renderable {
 
     public int minWidth() {
         return topRight.x - topLeft.x;
+    }
+
+    @Override
+    public LaneView withZOrder(float zOrder) {
+        setZOrder(zOrder);
+        return this;
     }
 }

@@ -4,6 +4,7 @@ import java.awt.event.KeyEvent;
 import java.util.List;
 
 import io.numberrun.Game.Lane.LaneVelocity;
+import io.numberrun.Game.Scene.SceneState;
 import io.numberrun.System.Entity;
 import io.numberrun.System.GameSystem;
 import io.numberrun.System.SystemPriority;
@@ -22,6 +23,16 @@ public class PlayerMovementSystem implements GameSystem {
 
     @Override
     public void onInput(World world, InputEvent event, InputState inputState) {
+        // ゲームプレイ中のみ有効
+        List<Entity> scenes = world.query(SceneState.class);
+        if (scenes.isEmpty()) {
+            return;
+        }
+        SceneState sceneState = scenes.get(0).getComponent(SceneState.class).get();
+        if (sceneState.getCurrentScene() != io.numberrun.Game.Scene.SceneType.GAMEPLAY) {
+            return;
+        }
+
         // Sample.java の PlayerMovementSystem を参考にプレイヤーの動きを実装する
         List<Entity> players = world.query(PlayerView.class, LaneVelocity.class);
 

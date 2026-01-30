@@ -3,6 +3,8 @@ package io.numberrun.Game.Player;
 // プレイヤーが壁を通過したときの処理を管理するシステム
 import java.util.List;
 
+import io.numberrun.Game.Effect.DamageEffectSystem;
+import io.numberrun.Game.Effect.PowerUpEffectSystem;
 import io.numberrun.Game.Lane.LaneSize;
 import io.numberrun.Game.Lane.LaneTransform;
 import io.numberrun.Game.Lane.LaneVelocity;
@@ -14,6 +16,14 @@ import io.numberrun.System.SystemPriority;
 import io.numberrun.System.World;
 
 public class PlayerPassWallSystem implements GameSystem {
+
+    private final int windowWidth;
+    private final int windowHeight;
+
+    public PlayerPassWallSystem(int windowWidth, int windowHeight) {
+        this.windowWidth = windowWidth;
+        this.windowHeight = windowHeight;
+    }
 
     @Override
     public int getPriority() {
@@ -76,8 +86,21 @@ public class PlayerPassWallSystem implements GameSystem {
                 continue;
             }
 
+            int previousNumber = playerState.getNumber();
+
             // 4.1 通過していたら、Wall の効果を PlayerState に適用する
             applyWallEffect(playerState, wall);
+
+            int newNumber = playerState.getNumber();
+
+            // 値が減少したらダメージエフェクトを出す
+            if (newNumber < previousNumber) {
+                DamageEffectSystem.spawnDamageEffect(world, windowWidth, windowHeight);
+            } else if (newNumber > previousNumber) {
+                // 値が増加したらパワーアップエフェクトを出す
+                PowerUpEffectSystem.spawnPowerUpEffect(world, windowWidth, windowHeight);
+            }
+
             // 4.2 壁エンティティを world から削除する (無効化する)
             wallEntity.destroy();
         }
@@ -86,16 +109,8 @@ public class PlayerPassWallSystem implements GameSystem {
     private void applyWallEffect(PlayerState playerState, Wall wall) {
         WallType type = wall.getWallType();
         int value = wall.getValue();
-
-        switch (type) {
-            case Add ->
-                playerState.addNumber(value);
-            case Subtract ->
-                playerState.subtractNumber(value);
-            case Multiply ->
-                playerState.multiplyNumber(value);
-            case Divide ->
-                playerState.divideNumber(value);
-        }
+        playerState.setNumber(
+                type.getAppliedNumber(playerState.getNumber(), value)
+        );
     }
 }

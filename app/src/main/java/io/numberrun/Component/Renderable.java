@@ -19,9 +19,11 @@ public interface Renderable extends Component {
      *
      * @return 描画順序
      */
-    default int getZOrder() {
+    default float getZOrder() {
         return 0;
     }
+
+    void setZOrder(float zOrder);
 
     default float getWidth() {
         return 0;
@@ -29,5 +31,10 @@ public interface Renderable extends Component {
 
     default float getHeight() {
         return 0;
+    }
+
+    default Renderable withZOrder(float zOrder) {
+        setZOrder(zOrder);
+        return this;
     }
 }

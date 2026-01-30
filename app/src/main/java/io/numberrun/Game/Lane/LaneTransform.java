@@ -16,8 +16,8 @@ public class LaneTransform implements Component {
 
     private float movementMinX = -0.5f; // 移動可能な最小X座標
     private float movementMaxX = 0.5f; // 移動可能な最大X座標
-    private float movementMinY = -1.0f; // 移動可能な最小Y座標
-    private float movementMaxY = 1.0f; // 移動可能な最大Y座標
+    private float movementMinY = -0.5f; // 移動可能な最小Y座標
+    private float movementMaxY = 1.0f; // 移動可能な最大Y座標 (画面外に飛ばすため大きくしている)
 
     public LaneTransform() {
         this(0, 0);
