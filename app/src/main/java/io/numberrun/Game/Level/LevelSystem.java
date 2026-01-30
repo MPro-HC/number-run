@@ -73,11 +73,18 @@ public class LevelSystem implements GameSystem {
         // 生成タイマー更新
         spawnTimer += deltaTime;
 
-        // 一定間隔で「左右のペア」を生成
+		        // 生成間隔を超えている分だけループして生成
         while (spawnTimer >= SPAWN_INTERVAL_SEC) {
             spawnTimer -= SPAWN_INTERVAL_SEC;
-            spawnWallPair(world, laneView);
+            
+        //　処理落ち等で複数生成される場合、同じ位置に重ならないように
+        // 「本来生成されるべきだった時間」からの経過分だけ、手前にずらして配置する
+	    float timeOffset = spawnTimer; 
+        float yOffset = timeOffset * WALL_SPEED;
+
+            spawnWallPair(world, laneView, yOffset);
         }
+        
     }
 
     private void cleanupWalls(World world) {
@@ -89,31 +96,29 @@ public class LevelSystem implements GameSystem {
         }
     }
 
-    // 悪い壁かどうか判定 (減算または除算)
-    private boolean isBadWall(WallType type) {
-        return type == WallType.Subtract || type == WallType.Divide;
+    // 引き算以外の壁タイプをランダムに取得 (足し算、掛け算、割り算)
+    private WallType randomNonSubtractWallType() {
+        WallType[] candidates = { WallType.Add, WallType.Multiply, WallType.Divide };
+        return candidates[random.nextInt(candidates.length)];
     }
 
-    // 良い壁をランダムに取得 (足し算または掛け算)
-    private WallType randomGoodWallType() {
-        return random.nextBoolean() ? WallType.Add : WallType.Multiply;
-    }
-
-    private void spawnWallPair(World world, LaneView laneView) {
+    // 引数に float yOffset を追加
+    private void spawnWallPair(World world, LaneView laneView, float yOffset) {
         WallType leftType = randomWallType();
         WallType rightType = randomWallType();
 
-        // 両方とも「悪い壁」になってしまった場合、右側を強制的に「良い壁」にする
-        if (isBadWall(leftType) && isBadWall(rightType)) {
-            rightType = randomGoodWallType();
+        // 引き算同士の組み合わせの時だけ、右側を「引き算以外」に変更する
+        if (leftType == WallType.Subtract && rightType == WallType.Subtract) {
+            rightType = randomNonSubtractWallType();
         }
 
-        spawnWall(world, laneView, LEFT_X, leftType);
-        spawnWall(world, laneView, RIGHT_X, rightType);
+        spawnWall(world, laneView, LEFT_X, leftType, yOffset);
+        spawnWall(world, laneView, RIGHT_X, rightType, yOffset);
     }
+
     
-    // 引数に WallType type を追加しました
-    private void spawnWall(World world, LaneView laneView, float laneX, WallType type) {
+    // 引数に float yOffset, を追加
+    private void spawnWall(World world, LaneView laneView, float laneX, WallType type, float yOffset) {
         // 種類と値を決める
         int value = randomWallValue(type);
 
@@ -137,8 +142,9 @@ public class LevelSystem implements GameSystem {
                         type.textBorderWidth(), // text border width
                         type.textBorderColor() // text border color
                 ),
-                new LaneSize(0.5f, 0.1f), // レーン幅の半分、高さは適当
-                new LaneTransform(laneX, SPAWN_Y), // 奥から出す
+                new LaneSize(0.5f, 0.1f), // レーン幅の半分よりちょっと小さくしてみた、高さは適当
+                // Y座標にオフセットを加算して生成
+                new LaneTransform(laneX, SPAWN_Y + yOffset), 
                 new LaneVelocity(0f, WALL_SPEED), // 手前へ流す（LaneMovementSystemが反映）
                 new Wall(type, value) // 通過判定用
         );

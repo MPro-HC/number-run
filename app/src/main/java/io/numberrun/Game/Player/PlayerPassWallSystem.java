@@ -113,6 +113,7 @@ public class PlayerPassWallSystem implements GameSystem {
 
             // 4.2 壁エンティティを world から削除する (無効化する)
             wallEntity.destroy();
+			break;
         }
     }
 
