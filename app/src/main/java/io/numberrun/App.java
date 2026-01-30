@@ -9,6 +9,7 @@ import io.numberrun.Component.Transform;
 import io.numberrun.Core.GameEngine;
 import io.numberrun.Game.Effect.DamageEffectSystem;
 import io.numberrun.Game.Effect.PowerUpEffectSystem;
+import io.numberrun.Game.GameOver.GameOverAdSystem;
 import io.numberrun.Game.GameOver.GameOverExitSystem;
 import io.numberrun.Game.GameOver.GameOverSystem;
 import io.numberrun.Game.GlobalCursor.GlobalCursorSystem;
@@ -108,7 +109,8 @@ public class App {
                 ), // ゲームオーバー判定と処理
                 new GameOverExitSystem(),
                 new DamageEffectSystem(),
-                new PowerUpEffectSystem()
+                new PowerUpEffectSystem(),
+                new GameOverAdSystem()
         );
 
         // ゲーム開始

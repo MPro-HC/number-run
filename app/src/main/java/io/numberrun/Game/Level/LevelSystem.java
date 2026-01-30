@@ -27,8 +27,10 @@ public class LevelSystem implements GameSystem {
 
     private static final float SPAWN_INTERVAL_SEC = 1.5f;
     private static final float WALL_SPEED = 0.15f;
-    private static final float SPAWN_Y = -0.65f;
-    private static final float DESPAWN_Y = 0.80f; 
+
+    // 生成位置・削除位置（LaneY）
+    private static final float SPAWN_Y = -0.5f;   // 奥側ちょい外から出す
+    private static final float DESPAWN_Y = 0.80f;  // 手前側に抜けたら消す
 
     private static final float LEFT_X = -0.25f;
     private static final float RIGHT_X = 0.25f;
