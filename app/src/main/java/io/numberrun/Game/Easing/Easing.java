@@ -28,6 +28,22 @@ public class Easing implements Component {
                 : -1 + (4 - 2 * progress) * progress;
     }
 
+    public float easeIn() {
+        float p = progress();
+        return p * p * p;
+    }
+
+    public float easeOut() {
+        float p = progress();
+        float f = (p - 1);
+        return f * f * f + 1;
+    }
+
+    public float easeOutSine() {
+        float p = progress();
+        return (float) Math.sin(p * (Math.PI / 2));
+    }
+
     public float easeOutCubic() {
         float p = progress() - 1;
         return p * p * p + 1;
@@ -35,5 +51,9 @@ public class Easing implements Component {
 
     public boolean isFinished() {
         return timer.getIsFinished();
+    }
+
+    public void restart() {
+        timer.restart();
     }
 }
