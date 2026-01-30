@@ -4,7 +4,8 @@ public class Timer implements Component {
 
     public enum TimerMode {
         Once,
-        Loop
+        Loop,
+        PingPong,  // 0→1→0→1 と往復するモード
     }
 
     private final float duration;
@@ -12,6 +13,7 @@ public class Timer implements Component {
     private final TimerMode mode;
     private boolean isFinished = false;
     private boolean justCompleted = false;  // ループ完了を1フレームだけ検出
+    private boolean isReversing = false;  // PingPongモード用: 逆方向に進んでいるかどうか
 
     public Timer(
             float duration, // milliseconds
@@ -24,14 +26,38 @@ public class Timer implements Component {
 
     public void tick(float deltaTime) {
         this.justCompleted = false;  // 毎フレームリセット
-        this.timeLeft -= deltaTime;
-        if (this.timeLeft <= 0) {
-            this.justCompleted = true;  // ループ完了またはタイマー終了
-            if (mode == TimerMode.Loop) {
-                this.timeLeft += duration;
+
+        if (mode == TimerMode.PingPong) {
+            // PingPongモード: 方向に応じて加減算
+            if (isReversing) {
+                this.timeLeft += deltaTime;
+                if (this.timeLeft >= duration) {
+                    this.justCompleted = true;
+                    this.timeLeft = duration - (this.timeLeft - duration);
+                    this.isReversing = false;
+                }
             } else {
-                this.timeLeft = 0;
-                this.isFinished = true;
+                this.timeLeft -= deltaTime;
+                if (this.timeLeft <= 0) {
+                    this.justCompleted = true;
+                    this.timeLeft = -this.timeLeft;
+                    this.isReversing = true;
+                }
+            }
+        } else {
+            // Once/Loopモード: 従来の処理
+            this.timeLeft -= deltaTime;
+            if (this.timeLeft <= 0) {
+                this.justCompleted = true;
+                switch (mode) {
+                    case TimerMode.Loop -> {
+                        this.timeLeft += duration;
+                    }
+                    case TimerMode.Once -> {
+                        this.timeLeft = 0;
+                        this.isFinished = true;
+                    }
+                }
             }
         }
     }
