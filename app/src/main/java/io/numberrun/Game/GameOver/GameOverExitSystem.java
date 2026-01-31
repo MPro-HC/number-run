@@ -35,6 +35,12 @@ public class GameOverExitSystem implements GameSystem {
             return;
         }
 
+        // 広告が表示中、存在しているなら閉じれないように
+        List<Entity> ads = world.query(GameOverAd.class);
+        if (!ads.isEmpty()) {
+            return;
+        }
+
         // SceneState を取得して、ゲームオーバーシーンからゲームプレイシーンに戻す処理を実装する
         // 1. world から SceneState を持つエンティティを取得
         List<Entity> scenes = world.query(SceneState.class);

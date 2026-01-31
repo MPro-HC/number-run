@@ -228,6 +228,26 @@ public class Graphics {
     }
 
     /**
+     * 画像の一部を描画
+     */
+    public void drawImageArea(java.awt.Image image,
+            float destX, float destY, float destWidth, float destHeight,
+            float sourceX, float sourceY, float sourceWidth, float sourceHeight) {
+        g2d.drawImage(
+                image,
+                (int) destX,
+                (int) destY,
+                (int) (destX + destWidth),
+                (int) (destY + destHeight),
+                (int) sourceX,
+                (int) sourceY,
+                (int) (sourceX + sourceWidth),
+                (int) (sourceY + sourceHeight),
+                null
+        );
+    }
+
+    /**
      * XYの移動
      */
     public void translate(float x, float y) {

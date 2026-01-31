@@ -111,18 +111,39 @@ public class GameOverSystem implements GameSystem {
 
     private void spawnGameOverAd(World world) {
         world.spawn(
-                new GameOverAd((int) Math.round(windowWidth * 0.9), (int) Math.round(windowHeight * 0.9)).withZOrder(205),
+                new GameOverAd(
+                        (int) Math.round(windowWidth * 0.9),
+                        (int) Math.round(windowHeight * 0.9),
+                        new Easing(
+                                new Timer(
+                                        1000, // ms
+                                        Timer.TimerMode.Once
+                                )
+                        ), // 入退場アニメーション
+                        new Easing(
+                                new Timer(
+                                        1000, // ms
+                                        Timer.TimerMode.PingPong
+                                )
+                        ) // 大きくなったり小さくなったりアニメーション
+                ).withZOrder(205),
                 new Transform(
                         0,
                         windowHeight // 画面の下側に登場させる
                 ),
-                new Easing(
-                        new Timer(
-                                1000, // ms
-                                Timer.TimerMode.Once
+                new NamedValue<>("initialY", (float) windowHeight)
+        ).addChild(
+                world.spawn(
+                        new Image(
+                                GameOverSystem.class.getResource("/images/close_button.png"),
+                                50, 50 // w h
+                        ).withZOrder(210),
+                        new Transform(
+                                // 右上の方
+                                (int) Math.round(windowWidth * 0.775f / 2),
+                                -(int) Math.round(windowHeight * 0.9f / 2)
                         )
-                ), // 入退場アニメーション
-                new NamedValue<Float>("initialY", (float) windowHeight)
+                )
         );
     }
 }

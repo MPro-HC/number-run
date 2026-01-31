@@ -24,36 +24,45 @@ public class GameOverAdSystem implements GameSystem {
     public void update(World world, float deltaTime) {
         // ease in と ease out アニメーション
 
-        List<Entity> ads = world.query(GameOverAd.class, Easing.class);
+        List<Entity> ads = world.query(GameOverAd.class);
 
         for (Entity entity : ads) {
-            Easing easing = entity.getComponent(Easing.class).get();
             GameOverAd ad = entity.getComponent(GameOverAd.class).get();
+            Easing transition = ad.getTransition();
+            Easing pulse = ad.getPulse();
             NamedValue<Float> initialYValue = entity.getComponent(NamedValue.class).get();
             Transform transform = entity.getComponent(Transform.class).get();
 
             // Easing を進める (deltaTime は秒単位なのでミリ秒に変換)
-            easing.tick(deltaTime * 1000);
+            ad.tickEasing(deltaTime * 1000);
 
             // 座標を更新する
-            float easeValue = easing.easeOutSine();
+            float transitionValue = transition.easeOutSine();
             float initialY = initialYValue.getValue(); // 初期のY座標 == 画面下端
             if (ad.isExiting()) {
                 // 退場
                 // 0 -> 1 で 中央から画面下へ移動
-                float newY = initialY * easeValue;
+                float newY = initialY * transitionValue;
                 transform.setY(newY);
 
                 // もし easing が終了したら破棄する
-                if (easing.isFinished()) {
+                if (transition.isFinished()) {
                     entity.destroy();
                 }
             } else {
-                // 入場
-                // 0 -> 1 で 画面下から中央へ移動
-                // 中央はゼロなのでマップすればいい
-                float newY = initialY * (1.0f - easeValue);
-                transform.setY(newY);
+                if (transition.isFinished()) {
+                    // スケールを変更する
+                    float pulseValue = pulse.easeInOut();
+                    float scale = 1.0f - 0.025f + 0.05f * pulseValue;
+                    transform.setScale(scale);
+
+                } else {
+                    // 入場
+                    // 0 -> 1 で 画面下から中央へ移動
+                    // 中央はゼロなのでマップすればいい
+                    float newY = initialY * (1.0f - transitionValue);
+                    transform.setY(newY);
+                }
             }
         }
     }
@@ -66,11 +75,11 @@ public class GameOverAdSystem implements GameSystem {
         }
 
         // 画面がクリックされたら広告を退場させる
-        List<Entity> ads = world.query(GameOverAd.class, Easing.class);
+        List<Entity> ads = world.query(GameOverAd.class);
 
         for (Entity entity : ads) {
             GameOverAd ad = entity.getComponent(GameOverAd.class).get();
-            Easing easing = entity.getComponent(Easing.class).get();
+            Easing transition = ad.getTransition();
 
             // 既に退場中の場合はスキップ
             if (ad.isExiting()) {
@@ -81,7 +90,7 @@ public class GameOverAdSystem implements GameSystem {
             ad.setExiting(true);
 
             // Easingをリセットして退場アニメーションを開始
-            easing.restart();
+            transition.restart();
         }
     }
 
