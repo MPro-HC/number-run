@@ -91,8 +91,6 @@ public class PlayerPassWallSystem implements GameSystem {
 
             // 4.1 通過していたら、Wall の効果を PlayerState に適用する
             applyWallEffect(playerState, wall);
-			
-
             int newNumber = playerState.getNumber();
 
             // 値が減少したらダメージエフェクトを出す
