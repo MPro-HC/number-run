@@ -5,6 +5,7 @@ import java.awt.Image;
 import java.io.IOException;
 import java.util.List;
 
+import io.numberrun.Core.SoundManager;
 import io.numberrun.Component.Sprite;
 import io.numberrun.Component.Transform;
 import io.numberrun.Game.Effect.DamageEffectSystem;
@@ -111,19 +112,27 @@ public class PlayerPassWallSystem implements GameSystem {
 
             // 4.1 通過していたら、Wall の効果を PlayerState に適用する
             applyWallEffect(playerState, wall);
-
             int newNumber = playerState.getNumber();
 
             // 値が減少したらダメージエフェクトを出す
             if (newNumber < previousNumber) {
                 DamageEffectSystem.spawnDamageEffect(world, windowWidth, windowHeight);
+				if (newNumber <= 0) {
+                     // ゲームオーバーになった場合
+                     SoundManager.play("/sounds/dam.wav");
+                } else {
+                     // まだ生きている（ダメージのみ）場合
+                     SoundManager.play("/sounds/damage.wav");
+                }
             } else if (newNumber > previousNumber) {
                 // 値が増加したらパワーアップエフェクトを出す
                 PowerUpEffectSystem.spawnPowerUpEffect(world, windowWidth, windowHeight);
+				SoundManager.play("/sounds/powerup.wav");
             }
 
             // 4.2 壁エンティティを world から削除する (無効化する)
             wallEntity.destroy();
+			      break;
 
         }
 

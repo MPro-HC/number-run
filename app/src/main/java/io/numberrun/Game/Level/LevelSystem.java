@@ -25,11 +25,7 @@ import io.numberrun.System.World;
  */
 public class LevelSystem implements GameSystem {
 
-    // レーンに壁などのオブジェクトを生成する処理と World に spawn する処理
-    // 生成間隔（秒）
     private static final float SPAWN_INTERVAL_SEC = 1.5f;
-
-    // 壁が奥→手前に流れてくる速度（Lane座標 / 秒）
     private static final float WALL_SPEED = 0.15f;
 
     // 生成位置・削除位置（LaneY）
@@ -44,7 +40,6 @@ public class LevelSystem implements GameSystem {
 
     @Override
     public int getPriority() {
-        // 生成は別に早くても遅くても良いが、DEFAULTにしておく
         return SystemPriority.DEFAULT.getPriority();
     }
 
@@ -59,7 +54,6 @@ public class LevelSystem implements GameSystem {
             return;
         }
 
-        // LaneView が無いと壁の幅を決められないので何もしない
         List<Entity> laneEntities = world.query(LaneView.class);
         if (laneEntities.isEmpty()) {
             return;
@@ -70,21 +64,25 @@ public class LevelSystem implements GameSystem {
         // 画面外に抜けた壁を削除
         cleanupWalls(world);
 
-        // 生成タイマー更新
-        spawnTimer += deltaTime;
-
         // 壁が多すぎるときは生成しない（保険）
         int wallCount = world.query(Wall.class).size();
         if (wallCount > 30) {
             return;
         }
 
-        // 一定間隔で「左右に1枚ずつ」生成
+        // 生成タイマー更新
+        spawnTimer += deltaTime;
+
+		        // 生成間隔を超えている分だけループして生成
         while (spawnTimer >= SPAWN_INTERVAL_SEC) {
             spawnTimer -= SPAWN_INTERVAL_SEC;
+            
+        //　処理落ち等で複数生成される場合、同じ位置に重ならないように
+        // 「本来生成されるべきだった時間」からの経過分だけ、手前にずらして配置する
+	    float timeOffset = spawnTimer; 
+        float yOffset = timeOffset * WALL_SPEED;
 
-            spawnWall(world, laneView, LEFT_X);
-            spawnWall(world, laneView, RIGHT_X);
+            spawnWallPair(world, laneView, yOffset);
         }
     }
 
@@ -97,9 +95,29 @@ public class LevelSystem implements GameSystem {
         }
     }
 
-    private void spawnWall(World world, LaneView laneView, float laneX) {
+    // 引き算以外の壁タイプをランダムに取得 (足し算、掛け算、割り算)
+    private WallType randomNonSubtractWallType() {
+        WallType[] candidates = { WallType.Add, WallType.Multiply, WallType.Divide };
+        return candidates[random.nextInt(candidates.length)];
+    }
+
+    // 引数に float yOffset を追加
+    private void spawnWallPair(World world, LaneView laneView, float yOffset) {
+        WallType leftType = randomWallType();
+        WallType rightType = randomWallType();
+
+        // 引き算同士の組み合わせの時だけ、右側を「引き算以外」に変更する
+        if (leftType == WallType.Subtract && rightType == WallType.Subtract) {
+            rightType = randomNonSubtractWallType();
+        }
+
+        spawnWall(world, laneView, LEFT_X, leftType, yOffset);
+        spawnWall(world, laneView, RIGHT_X, rightType, yOffset);
+    }
+
+    // 引数に float yOffset を追加
+    private void spawnWall(World world, LaneView laneView, float laneX, WallType type, float yOffset) {
         // 種類と値を決める
-        WallType type = randomWallType();
         int value = randomWallValue(type);
 
         // 表示テキスト
@@ -122,8 +140,9 @@ public class LevelSystem implements GameSystem {
                         type.textBorderWidth(), // text border width
                         type.textBorderColor() // text border color
                 ),
-                new LaneSize(0.5f, 0.1f), // レーン幅の半分、高さは適当
-                new LaneTransform(laneX, SPAWN_Y), // 奥から出す
+                new LaneSize(0.5f, 0.1f), // レーン幅の半分よりちょっと小さくしてみた、高さは適当
+                // Y座標にオフセットを加算して生成
+                new LaneTransform(laneX, SPAWN_Y + yOffset), 
                 new LaneVelocity(0f, WALL_SPEED), // 手前へ流す（LaneMovementSystemが反映）
                 new Wall(type, value) // 通過判定用
         );
@@ -135,17 +154,11 @@ public class LevelSystem implements GameSystem {
     }
 
     private int randomWallValue(WallType type) {
-        // ここはゲームバランスなので適当に調整してOK
         return switch (type) {
-            case Add ->
-                1 + random.nextInt(9);       // +1..+9
-            case Subtract ->
-                1 + random.nextInt(9);  // -1..-9
-            case Multiply ->
-                2 + random.nextInt(4);  // x2..x5
-            case Divide ->
-                2 + random.nextInt(3);    // /2../4
+            case Add -> 1 + random.nextInt(9);
+            case Subtract -> 1 + random.nextInt(9);
+            case Multiply -> 2 + random.nextInt(4);
+            case Divide -> 2 + random.nextInt(3);
         };
     }
-
 }
