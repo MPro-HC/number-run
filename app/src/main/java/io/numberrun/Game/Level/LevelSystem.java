@@ -117,7 +117,7 @@ public class LevelSystem implements GameSystem {
     }
 
     
-    // 引数に float yOffset, を追加
+    // 引数に float yOffset を追加
     private void spawnWall(World world, LaneView laneView, float laneX, WallType type, float yOffset) {
         // 種類と値を決める
         int value = randomWallValue(type);
