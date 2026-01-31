@@ -125,7 +125,7 @@ public class LevelSystem implements GameSystem {
 
         // 壁サイズ：レーン幅の半分
         int wallWidth = laneView.maxWidth() / 2;
-        int wallHeight = 400;
+        int wallHeight = laneView.maxHeight() * 400 / 960;
 
         // 壁本体（親Entity）
         world.spawn(

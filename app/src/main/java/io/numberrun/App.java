@@ -7,6 +7,7 @@ import java.awt.Toolkit;
 import io.numberrun.Component.Image;
 import io.numberrun.Component.Transform;
 import io.numberrun.Core.GameEngine;
+import io.numberrun.Game.Animation.SpriteAnimationSystem;
 import io.numberrun.Game.Effect.DamageEffectSystem;
 import io.numberrun.Game.Effect.PowerUpEffectSystem;
 import io.numberrun.Game.GameOver.GameOverAdSystem;
@@ -24,8 +25,8 @@ import io.numberrun.Game.Player.PlayerView;
 import io.numberrun.Game.Player.PlayerViewSyncSystem;
 import io.numberrun.Game.Scene.Scene;
 import io.numberrun.Game.Scene.SceneState;
-import io.numberrun.Game.Scene.SceneType; // 自動でサイズ変更したかったので追加
-import io.numberrun.System.World;
+import io.numberrun.Game.Scene.SceneType;
+import io.numberrun.System.World; // 自動でサイズ変更したかったので追加
 
 public class App {
 
@@ -110,7 +111,8 @@ public class App {
                 new GameOverExitSystem(),
                 new DamageEffectSystem(),
                 new PowerUpEffectSystem(),
-                new GameOverAdSystem()
+                new GameOverAdSystem(),
+                new SpriteAnimationSystem()
         );
 
         // ゲーム開始
