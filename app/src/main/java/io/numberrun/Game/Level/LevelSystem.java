@@ -84,7 +84,6 @@ public class LevelSystem implements GameSystem {
 
             spawnWallPair(world, laneView, yOffset);
         }
-        
     }
 
     private void cleanupWalls(World world) {
