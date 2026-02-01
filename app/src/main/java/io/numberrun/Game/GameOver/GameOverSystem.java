@@ -59,6 +59,7 @@ public class GameOverSystem implements GameSystem {
         if (sceneState.getCurrentScene() != SceneType.GAMEPLAY) {
             return;
         }
+
         // 2. PlayerState の状態を確認して、ゲームオーバー条件を満たしていたら
         // 2.1 ゲームオーバー処理を実行する 
         // SceneState を持つエンティティを取得し、

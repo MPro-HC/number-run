@@ -38,7 +38,6 @@ public class LevelSystem implements GameSystem {
 
     private final Random random = new Random();
     private float spawnTimer = 0f;
-    private int spawnCount = 0;
     private final int bossInterval = 10; // ボス壁を出す通常壁の間隔
 
     @Override
@@ -64,6 +63,12 @@ public class LevelSystem implements GameSystem {
 
         LaneView laneView = laneEntities.get(0).getComponent(LaneView.class).get();
 
+        List<Entity> levelEntities = world.query(Level.class);
+        if (levelEntities.isEmpty()) {
+            return;
+        }
+        Level level = levelEntities.get(0).getComponent(Level.class).get();
+
         // 画面外に抜けた壁を削除
         cleanupWalls(world);
 
@@ -85,7 +90,9 @@ public class LevelSystem implements GameSystem {
             float timeOffset = spawnTimer;
             float yOffset = timeOffset * WALL_SPEED;
 
-            spawnCount += 1;
+            level.incrementSpawnCount();
+            int spawnCount = level.getSpawnCount();
+            System.out.println("Spawning walls, count=" + spawnCount);
 
             // 一定回数ごとにボスを出す
             if (spawnCount % bossInterval == 0) {
@@ -97,7 +104,7 @@ public class LevelSystem implements GameSystem {
                 }
                 spawnWallBoss(world, laneView, yOffset, playerNumber);
             } else {
-                spawnWallPair(world, laneView, yOffset);
+                spawnWallPair(world, laneView, yOffset, spawnCount);
             }
 
         }
@@ -128,19 +135,28 @@ public class LevelSystem implements GameSystem {
         }
     }
 
-    // 引き算以外の壁タイプをランダムに取得 (足し算、掛け算、割り算)
+    // 引き算以外の壁タイプをランダムに取得 (足し算、掛け算)
     private WallType randomNonSubtractWallType() {
-        WallType[] candidates = {WallType.Add, WallType.Multiply, WallType.Divide};
+        WallType[] candidates = {WallType.Add, WallType.Multiply};
         return candidates[random.nextInt(candidates.length)];
     }
 
-    private void spawnWallPair(World world, LaneView laneView, float yOffset) {
+    private void spawnWallPair(World world, LaneView laneView, float yOffset, int spawnCount) {
         WallType leftType = randomWallType();
         WallType rightType = randomWallType();
 
-        // 引き算同士の組み合わせの時だけ、右側を「引き算以外」に変更する
-        if (leftType == WallType.Subtract && rightType == WallType.Subtract) {
+        // 最初の方のみ、引き算同士の組み合わせの時だけ、右側を「引き算以外」に変更する
+        if (spawnCount < 5 && leftType == WallType.Subtract && rightType == WallType.Subtract) {
             rightType = randomNonSubtractWallType();
+        }
+
+        int leftValue = randomWallValue(leftType, spawnCount);
+        int rightValue = randomWallValue(rightType, spawnCount);
+
+        while (leftValue == rightValue && leftType == rightType) {
+            // 全く同じはつまらないので右を変える
+            rightType = randomWallType();
+            rightValue = randomWallValue(rightType, spawnCount);
         }
 
         spawnWall(
@@ -148,7 +164,7 @@ public class LevelSystem implements GameSystem {
                 laneView,
                 LEFT_X,
                 leftType,
-                randomWallValue(leftType),
+                leftValue,
                 yOffset,
                 laneView.maxWidth() / 2
         );
@@ -157,7 +173,7 @@ public class LevelSystem implements GameSystem {
                 laneView,
                 RIGHT_X,
                 rightType,
-                randomWallValue(rightType),
+                rightValue,
                 yOffset,
                 laneView.maxWidth() / 2
         );
@@ -219,25 +235,28 @@ public class LevelSystem implements GameSystem {
     }
 
     private WallType randomWallType() {
-        WallType[] types = {
-            WallType.Add,
-            WallType.Subtract,
-            WallType.Multiply, // 割り算は挙動が直感的だから抜く
-        // WallType.Divide
-        };
-        return types[random.nextInt(types.length)];
+        // 48% Add, 48% Subtract, 4% Multiply
+        float roll = random.nextFloat();
+        if (roll < 0.48f) {
+            return WallType.Add;
+        } else if (roll < 0.96f) {
+            return WallType.Subtract;
+        }
+        return WallType.Multiply;
     }
 
-    private int randomWallValue(WallType type) {
+    private int randomWallValue(WallType type, int spawnCount) {
+        // 壁を通過するごとにだんだんベースの数値が大きくなるように
         return switch (type) {
             case Add ->
-                1 + random.nextInt(9);
+                // 増やすのは難しく
+                1 + random.nextInt(9 + spawnCount / 3);
             case Subtract ->
-                1 + random.nextInt(9);
+                1 + random.nextInt(9 + spawnCount / 2);
             case Multiply ->
-                2 + random.nextInt(4);
+                2;
             case Divide ->
-                2 + random.nextInt(3);
+                2 + random.nextInt(2);
         };
     }
 }

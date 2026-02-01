@@ -6,6 +6,7 @@ import java.util.List;
 import io.numberrun.Game.Grid.GridLine;
 import io.numberrun.Game.Grid.GridLineSpawnSystem;
 import io.numberrun.Game.Lane.LaneView;
+import io.numberrun.Game.Level.Level;
 import io.numberrun.Game.Player.PlayerState;
 import io.numberrun.Game.Player.PlayerView;
 import io.numberrun.Game.Scene.SceneState;
@@ -65,6 +66,9 @@ public class GameOverExitSystem implements GameSystem {
         //  壁を全てデスポーン
         despawnAllWalls(world);
 
+        // レベル状態をリセット
+        resetLevel(world);
+
         //  プレイヤーをデスポーン
         respawnPlayer(world);
 
@@ -113,4 +117,17 @@ public class GameOverExitSystem implements GameSystem {
             GridLineSpawnSystem.setupInitialLines(world, laneView);
         });
     }
+
+    // レベルをリセット
+    private void resetLevel(World world) {
+        // レベル情報を取得して、生成回数をリセット
+        List<Entity> levels = world.query(Level.class);
+        if (levels.isEmpty()) {
+            return;
+        }
+
+        Level level = levels.get(0).getComponent(Level.class).get();
+        level.reset();
+    }
+
 }
