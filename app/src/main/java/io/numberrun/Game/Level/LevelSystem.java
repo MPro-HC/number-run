@@ -135,12 +135,6 @@ public class LevelSystem implements GameSystem {
         }
     }
 
-    // 引き算以外の壁タイプをランダムに取得 (足し算、掛け算)
-    private WallType randomNonSubtractWallType() {
-        WallType[] candidates = {WallType.Add, WallType.Multiply};
-        return candidates[random.nextInt(candidates.length)];
-    }
-
     private void spawnWallPair(World world, LaneView laneView, float yOffset, int spawnCount) {
         WallType leftType = randomWallType();
         WallType rightType = randomWallType();
@@ -235,12 +229,21 @@ public class LevelSystem implements GameSystem {
     }
 
     private WallType randomWallType() {
-        // 48% Add, 48% Subtract, 4% Multiply
+        // 40% Add, 56% Subtract, 4% Multiply
         float roll = random.nextFloat();
-        if (roll < 0.48f) {
+        if (roll < 0.40f) {
             return WallType.Add;
         } else if (roll < 0.96f) {
             return WallType.Subtract;
+        }
+        return WallType.Multiply;
+    }
+
+    // 引き算以外の壁タイプをランダムに取得 (足し算、掛け算)
+    private WallType randomNonSubtractWallType() {
+        float roll = random.nextFloat();
+        if (roll < 0.96f) {
+            return WallType.Add;
         }
         return WallType.Multiply;
     }

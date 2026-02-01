@@ -157,6 +157,11 @@ public class PlayerPassWallSystem implements GameSystem {
 
     public void spawnChildSprite(World world, Entity parent, int count) {
 
+        // めっちゃ多い場合はどうせ数えられないし重くなるだけなのでキャップする
+        if (count > 100) {
+            count = 100;
+        }
+
         for (int i = 0; i < count; i++) {
             float angle = (float) Math.random() * 2.0f * (float) Math.PI;
             float radius = radiusLimit(count) * (float) (Math.random());
