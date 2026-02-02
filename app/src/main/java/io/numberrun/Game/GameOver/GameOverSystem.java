@@ -143,7 +143,8 @@ public class GameOverSystem implements GameSystem {
                                 // 右上の方
                                 (int) Math.round(windowWidth * 0.775f / 2),
                                 -(int) Math.round(windowHeight * 0.9f / 2)
-                        )
+                        ),
+                        new NamedValue<>("closeButton", true)
                 )
         );
     }
