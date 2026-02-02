@@ -2,6 +2,7 @@ package io.numberrun.Game.Wall;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.util.List;
 
 import io.numberrun.Component.Renderable;
 import io.numberrun.Component.Text;
@@ -11,23 +12,33 @@ public class WallView implements Renderable {
 
     private final float width;
     private final float height;
-    private Color backgroundColor;
+
+    private List<Color> backgroundColors;
     private Color borderColor;
     private final Text text;
-    private int zOrder = 0;
+    private float zOrder = 0;
 
-    public WallView(float width, float height, Color backgroundColor, Color borderColor, Color textColor, String text) {
+    public WallView(
+            float width,
+            float height,
+            List<Color> backgroundColors,
+            Color borderColor,
+            Color textColor,
+            String text,
+            float textBorderWidth,
+            Color textBorderColor
+    ) {
         this.width = width;
         this.height = height;
-        this.backgroundColor = backgroundColor;
+        this.backgroundColors = backgroundColors;
         this.borderColor = borderColor;
-        this.text = new Text(text, textColor, new Font("SansSerif", Font.BOLD, 48)); // デフォルトで黒色のテキスト
+        this.text = new Text(text, textColor, new Font("SansSerif", Font.BOLD, 96), 0, textBorderColor, textBorderWidth); // デフォルトで黒色のテキスト
     }
 
     @Override
     public void render(Graphics g) {
         // 背景
-        g.fillRect(-width / 2, -height / 2, width, height, backgroundColor);
+        g.fillGradientRectVertical(-width / 2, -height / 2, width, height, backgroundColors.get(0), backgroundColors.get(1));
 
         // 枠
         g.drawRect(-width / 2, -height / 2, width, height, borderColor);
@@ -37,7 +48,7 @@ public class WallView implements Renderable {
     }
 
     @Override
-    public int getZOrder() {
+    public float getZOrder() {
         return zOrder;
     }
 
@@ -51,25 +62,28 @@ public class WallView implements Renderable {
         return height;
     }
 
-    public WallView setText(String text) {
+    public WallView withText(String text) {
         this.text.setText(text);
         return this;
     }
 
-    public WallView setBackgroundColor(Color color) {
-        this.backgroundColor = color;
+    public WallView withBackgroundColors(List<Color> colors) {
+        this.backgroundColors = colors;
         return this;
     }
 
-    public void setBorderColor(Color color) {
+    public WallView withBorderColor(Color color) {
         this.borderColor = color;
+        return this;
     }
 
-    public void setTextColor(Color color) {
+    public WallView withTextColor(Color color) {
         this.text.setColor(color);
+        return this;
     }
 
-    public void setZOrder(int zOrder) {
+    @Override
+    public void setZOrder(float zOrder) {
         this.zOrder = zOrder;
     }
 

@@ -1,14 +1,18 @@
 package io.numberrun.Game.Level;
 
-import java.awt.Color;
-import java.awt.Font;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 import io.numberrun.Component.Transform;
+import io.numberrun.Game.Lane.LaneSize;
 import io.numberrun.Game.Lane.LaneTransform;
 import io.numberrun.Game.Lane.LaneVelocity;
 import io.numberrun.Game.Lane.LaneView;
+import io.numberrun.Game.Player.PlayerState;
+import io.numberrun.Game.Scene.Scene;
+import io.numberrun.Game.Scene.SceneState;
+import io.numberrun.Game.Scene.SceneType;
 import io.numberrun.Game.Wall.Wall;
 import io.numberrun.Game.Wall.WallType;
 import io.numberrun.Game.Wall.WallView;
@@ -22,34 +26,36 @@ import io.numberrun.System.World;
  */
 public class LevelSystem implements GameSystem {
 
-    // レーンに壁などのオブジェクトを生成する処理と World に spawn する処理
-    // 生成間隔（秒）
-    private static final float SPAWN_INTERVAL_SEC = 1.2f;
-
-    // 壁が奥→手前に流れてくる速度（Lane座標 / 秒）
-    private static final float WALL_SPEED = 0.35f;
+    private static final float SPAWN_INTERVAL_SEC = 1.5f;
+    private static final float WALL_SPEED = 0.15f;
 
     // 生成位置・削除位置（LaneY）
-    private static final float SPAWN_Y = -0.65f;   // 奥側ちょい外から出す
+    private static final float SPAWN_Y = -0.5f;   // 奥側ちょい外から出す
     private static final float DESPAWN_Y = 0.80f;  // 手前側に抜けたら消す
 
     private static final float LEFT_X = -0.25f;
     private static final float RIGHT_X = 0.25f;
 
-    private static final Font WALL_FONT = new Font("SansSerif", Font.BOLD, 48);
-
     private final Random random = new Random();
     private float spawnTimer = 0f;
+    private final int bossInterval = 10; // ボス壁を出す通常壁の間隔
 
     @Override
     public int getPriority() {
-        // 生成は別に早くても遅くても良いが、DEFAULTにしておく
         return SystemPriority.DEFAULT.getPriority();
     }
 
     @Override
     public void update(World world, float deltaTime) {
-        // LaneView が無いと壁の幅を決められないので何もしない
+        // シーンがゲームプレイ中でないなら何もしない
+        Optional<Entity> sceneEntity = world.query(Scene.class, SceneState.class).stream().findFirst();
+        if (sceneEntity.isEmpty()) {
+            return;
+        }
+        if (sceneEntity.get().getComponent(SceneState.class).get().getCurrentScene() != SceneType.GAMEPLAY) {
+            return;
+        }
+
         List<Entity> laneEntities = world.query(LaneView.class);
         if (laneEntities.isEmpty()) {
             return;
@@ -57,11 +63,14 @@ public class LevelSystem implements GameSystem {
 
         LaneView laneView = laneEntities.get(0).getComponent(LaneView.class).get();
 
+        List<Entity> levelEntities = world.query(Level.class);
+        if (levelEntities.isEmpty()) {
+            return;
+        }
+        Level level = levelEntities.get(0).getComponent(Level.class).get();
+
         // 画面外に抜けた壁を削除
         cleanupWalls(world);
-
-        // 生成タイマー更新
-        spawnTimer += deltaTime;
 
         // 壁が多すぎるときは生成しない（保険）
         int wallCount = world.query(Wall.class).size();
@@ -69,13 +78,52 @@ public class LevelSystem implements GameSystem {
             return;
         }
 
-        // 一定間隔で「左右に1枚ずつ」生成
+        // 生成タイマー更新
+        spawnTimer += deltaTime;
+
+        // 生成間隔を超えている分だけループして生成
         while (spawnTimer >= SPAWN_INTERVAL_SEC) {
             spawnTimer -= SPAWN_INTERVAL_SEC;
 
-            spawnWall(world, laneView, LEFT_X);
-            spawnWall(world, laneView, RIGHT_X);
+            //　処理落ち等で複数生成される場合、同じ位置に重ならないように
+            // 「本来生成されるべきだった時間」からの経過分だけ、手前にずらして配置する
+            float timeOffset = spawnTimer;
+            float yOffset = timeOffset * WALL_SPEED;
+
+            level.incrementSpawnCount();
+            int spawnCount = level.getSpawnCount();
+            System.out.println("Spawning walls, count=" + spawnCount);
+
+            // 一定回数ごとにボスを出す
+            if (spawnCount % bossInterval == 0) {
+                // プレイヤーの現在の値を取得して、それが1に近くなるようにランダムに補正する
+                int playerNumber = currentPlayerNumber(world);
+                if (playerNumber == 0) {
+                    // 既に死んでる
+                    continue;
+                }
+                spawnWallBoss(world, laneView, yOffset, playerNumber);
+            } else {
+                spawnWallPair(world, laneView, yOffset, spawnCount);
+            }
+
         }
+    }
+
+    private int currentPlayerNumber(World world) {
+        List<Entity> players = world.query(
+                PlayerState.class
+        );
+        if (players.isEmpty()) {
+            return 0;
+        }
+
+        for (Entity e : players) {
+            if (e.getComponent(PlayerState.class).isPresent()) {
+                return e.getComponent(PlayerState.class).get().getNumber();
+            }
+        }
+        return 0;
     }
 
     private void cleanupWalls(World world) {
@@ -87,92 +135,131 @@ public class LevelSystem implements GameSystem {
         }
     }
 
-    private void spawnWall(World world, LaneView laneView, float laneX) {
-        // 種類と値を決める
-        WallType type = randomWallType();
-        int value = randomWallValue(type);
+    private void spawnWallPair(World world, LaneView laneView, float yOffset, int spawnCount) {
+        WallType leftType = randomWallType();
+        WallType rightType = randomWallType();
+
+        // 最初の方のみ、引き算同士の組み合わせの時だけ、右側を「引き算以外」に変更する
+        if (spawnCount < 5 && leftType == WallType.Subtract && rightType == WallType.Subtract) {
+            rightType = randomNonSubtractWallType();
+        }
+
+        int leftValue = randomWallValue(leftType, spawnCount);
+        int rightValue = randomWallValue(rightType, spawnCount);
+
+        while (leftValue == rightValue && leftType == rightType) {
+            // 全く同じはつまらないので右を変える
+            rightType = randomWallType();
+            rightValue = randomWallValue(rightType, spawnCount);
+        }
+
+        spawnWall(
+                world,
+                laneView,
+                LEFT_X,
+                leftType,
+                leftValue,
+                yOffset,
+                laneView.maxWidth() / 2
+        );
+        spawnWall(
+                world,
+                laneView,
+                RIGHT_X,
+                rightType,
+                rightValue,
+                yOffset,
+                laneView.maxWidth() / 2
+        );
+    }
+
+    private void spawnWallBoss(World world, LaneView laneView, float yOffset, int playerNumber) {
+        // デカめの強制マイナス壁を生成する
+
+        // 1~5くらい残るように調整
+        int wallValue = Math.max(1, playerNumber - 5) + random.nextInt(5); // 5 引いて 0~4 を足す
+
+        // 中心なので x は 0
+        spawnWall(
+                world,
+                laneView,
+                0f,
+                WallType.Subtract,
+                wallValue,
+                yOffset,
+                laneView.maxWidth()
+        );
+    }
+
+    private void spawnWall(
+            World world,
+            LaneView laneView,
+            float laneX,
+            WallType type,
+            int wallValue,
+            float yOffset,
+            int wallWidth
+    ) {
 
         // 表示テキスト
-        String label = wallLabel(type, value);
-
-        // 見た目（色）
-        Color textColor = wallTextColor(type);
-        Color bgColor = wallBgColor(type);
+        String label = type.label() + wallValue;
 
         // 壁サイズ：レーン幅の半分
-        int wallWidth = laneView.maxWidth() / 2;
-        int wallHeight = 200;
+        int wallHeight = laneView.maxHeight() * 400 / 960;
 
         // 壁本体（親Entity）
         world.spawn(
                 new Transform(),
-                new WallView(wallWidth, wallHeight, bgColor,
-                        bgColor, // border color
-                        textColor, // text color
-                        label
+                new WallView(
+                        wallWidth * 0.95f, // ちょっと小さめに
+                        wallHeight,
+                        List.of(type.backgroundColorStart(), type.backgroundColorEnd()), // background colors
+                        type.borderColor(), // border color
+                        type.textColor(), // text color
+                        label,
+                        type.textBorderWidth(), // text border width
+                        type.textBorderColor() // text border color
                 ),
-                new LaneTransform(laneX, SPAWN_Y), // 奥から出す
+                new LaneSize(0.5f, 0.1f), // レーン幅の半分よりちょっと小さくしてみた、高さは適当
+                // Y座標にオフセットを加算して生成
+                new LaneTransform(laneX, SPAWN_Y + yOffset),
                 new LaneVelocity(0f, WALL_SPEED), // 手前へ流す（LaneMovementSystemが反映）
-                new Wall(type, value) // 通過判定用
+                new Wall(type, wallValue) // 通過判定用
         );
     }
 
     private WallType randomWallType() {
-        WallType[] types = WallType.values();
-        return types[random.nextInt(types.length)];
+        // 40% Add, 56% Subtract, 4% Multiply
+        float roll = random.nextFloat();
+        if (roll < 0.40f) {
+            return WallType.Add;
+        } else if (roll < 0.96f) {
+            return WallType.Subtract;
+        }
+        return WallType.Multiply;
     }
 
-    private int randomWallValue(WallType type) {
-        // ここはゲームバランスなので適当に調整してOK
-        return switch (type) {
-            case Add ->
-                1 + random.nextInt(9);       // +1..+9
-            case Subtract ->
-                1 + random.nextInt(9);  // -1..-9
-            case Multiply ->
-                2 + random.nextInt(4);  // x2..x5
-            case Divide ->
-                2 + random.nextInt(3);    // /2../4
-        };
+    // 引き算以外の壁タイプをランダムに取得 (足し算、掛け算)
+    private WallType randomNonSubtractWallType() {
+        float roll = random.nextFloat();
+        if (roll < 0.96f) {
+            return WallType.Add;
+        }
+        return WallType.Multiply;
     }
 
-    private String wallLabel(WallType type, int value) {
+    private int randomWallValue(WallType type, int spawnCount) {
+        // 壁を通過するごとにだんだんベースの数値が大きくなるように
         return switch (type) {
             case Add ->
-                "+" + value;
+                // 増やすのは難しく
+                1 + random.nextInt(9 + spawnCount / 3);
             case Subtract ->
-                "-" + value;
+                1 + random.nextInt(9 + spawnCount / 2);
             case Multiply ->
-                "x" + value;
+                2;
             case Divide ->
-                "/" + value;
-        };
-    }
-
-    private Color wallTextColor(WallType type) {
-        return switch (type) {
-            case Add ->
-                new Color(0x18794E);       // 緑
-            case Subtract ->
-                new Color(0xCE2C31);  // 赤
-            case Multiply ->
-                new Color(0x0588F0);  // 青
-            case Divide ->
-                new Color(0x6E56CF);    // 紫
-        };
-    }
-
-    private Color wallBgColor(WallType type) {
-        // alpha 50 くらいで薄く
-        return switch (type) {
-            case Add ->
-                new Color(24, 121, 78, 50);
-            case Subtract ->
-                new Color(229, 72, 77, 50);
-            case Multiply ->
-                new Color(0, 144, 255, 50);
-            case Divide ->
-                new Color(110, 86, 207, 50);
+                2 + random.nextInt(2);
         };
     }
 }

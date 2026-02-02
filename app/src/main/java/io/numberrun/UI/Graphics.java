@@ -1,9 +1,12 @@
 package io.numberrun.UI;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
+import java.awt.GradientPaint;
 import java.awt.Graphics2D;
+import java.awt.Paint;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 
@@ -29,6 +32,19 @@ public class Graphics {
      */
     public void fillRect(float x, float y, float width, float height, Color color) {
         g2d.setColor(color);
+        g2d.fillRect((int) x, (int) y, (int) width, (int) height);
+    }
+
+    /**
+     * グラデーションの四角
+     */
+    public void fillGradientRectVertical(float x, float y, float width, float height, Color colorTop, Color colorBottom) {
+        GradientPaint gradientPaint = new GradientPaint(
+                0, y, colorTop,
+                0, y + height, colorBottom
+        );
+        g2d.setPaint(gradientPaint);
+
         g2d.fillRect((int) x, (int) y, (int) width, (int) height);
     }
 
@@ -71,6 +87,36 @@ public class Graphics {
     }
 
     /**
+     * グラデーション付きの多角形。 多分レーンの背景でしか使わないからこれだけ実装にしとく
+     */
+    public void fillPolygonGradientVertical(int[] xPoints, int[] yPoints, Color colorTop, Color colorBottom) {
+        int numXPoints = xPoints.length;
+        int numYPoints = yPoints.length;
+
+        if (numXPoints != numYPoints) {
+            throw new IllegalArgumentException("Number of points does not match nPoints");
+        }
+
+        // グラデーションペイントの作成
+        GradientPaint gradientPaint = new GradientPaint(
+                0, yPoints[0], colorTop,
+                0, yPoints[0] + (yPoints[numYPoints - 1] - yPoints[0]), colorBottom
+        );
+
+        // 現在のペイントを保存
+        Paint originalPaint = g2d.getPaint();
+
+        // グラデーションペイントを設定
+        g2d.setPaint(gradientPaint);
+
+        // 多角形を塗りつぶし
+        g2d.fillPolygon(xPoints, yPoints, numXPoints);
+
+        // 元のペイントに戻す
+        g2d.setPaint(originalPaint);
+    }
+
+    /**
      * 多角形を描画
      */
     public void drawPolygon(int[] xPoints, int[] yPoints, Color color) {
@@ -89,6 +135,15 @@ public class Graphics {
      */
     public void drawLine(float x1, float y1, float x2, float y2, Color color) {
         g2d.setColor(color);
+        g2d.drawLine((int) x1, (int) y1, (int) x2, (int) y2);
+    }
+
+    /**
+     * 太さ指定して線を描画
+     */
+    public void drawLine(float x1, float y1, float x2, float y2, float width, Color color) {
+        g2d.setColor(color);
+        g2d.setStroke(new BasicStroke(width));
         g2d.drawLine((int) x1, (int) y1, (int) x2, (int) y2);
     }
 
@@ -123,10 +178,73 @@ public class Graphics {
     }
 
     /**
+     * 雑にボーダーありのテキスト
+     */
+    public void drawTextCentered(String text, float x, float y, Color color, Font font, Color borderColor, float borderWidth) {
+        g2d.setFont(font);
+        FontMetrics fm = g2d.getFontMetrics();
+        float textWidth = fm.stringWidth(text);
+        float textHeight = fm.getAscent();
+
+        // 縁取りのためにちょっとずつずらして描画
+        g2d.setColor(borderColor);
+        float offset = borderWidth / 2;
+        g2d.drawString(
+                text,
+                x - textWidth / 2 - offset,
+                y + textHeight / 2 - fm.getDescent() / 2
+        );
+        g2d.drawString(
+                text,
+                x - textWidth / 2 + offset,
+                y + textHeight / 2 - fm.getDescent() / 2
+        );
+        g2d.drawString(
+                text,
+                x - textWidth / 2,
+                y + textHeight / 2 - fm.getDescent() / 2 - offset
+        );
+        g2d.drawString(
+                text,
+                x - textWidth / 2,
+                y + textHeight / 2 - fm.getDescent() / 2 + offset
+        );
+
+        // 本体
+        g2d.setColor(color);
+        g2d.drawString(
+                text,
+                x - textWidth / 2,
+                y + textHeight / 2 - fm.getDescent() / 2
+        );
+
+    }
+
+    /**
      * 画像を描画
      */
     public void drawImage(java.awt.Image image, float x, float y, float width, float height) {
         g2d.drawImage(image, (int) x, (int) y, (int) width, (int) height, null);
+    }
+
+    /**
+     * 画像の一部を描画
+     */
+    public void drawImageArea(java.awt.Image image,
+            float destX, float destY, float destWidth, float destHeight,
+            float sourceX, float sourceY, float sourceWidth, float sourceHeight) {
+        g2d.drawImage(
+                image,
+                (int) destX,
+                (int) destY,
+                (int) (destX + destWidth),
+                (int) (destY + destHeight),
+                (int) sourceX,
+                (int) sourceY,
+                (int) (sourceX + sourceWidth),
+                (int) (sourceY + sourceHeight),
+                null
+        );
     }
 
     /**

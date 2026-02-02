@@ -138,9 +138,9 @@ public class World {
                 .collect(Collectors.toList());
 
         rootRenderableEntities.sort((a, b) -> {
-            int za = a.getComponent(Renderable.class).map(Renderable::getZOrder).orElse(0);
-            int zb = b.getComponent(Renderable.class).map(Renderable::getZOrder).orElse(0);
-            return Integer.compare(za, zb);
+            float za = a.getComponent(Renderable.class).map(Renderable::getZOrder).orElse(0f);
+            float zb = b.getComponent(Renderable.class).map(Renderable::getZOrder).orElse(0f);
+            return Float.compare(za, zb);
         });
 
         for (Entity entity : rootRenderableEntities) {
@@ -171,26 +171,39 @@ public class World {
             );
         }
 
-        // 描画
-        if (renderableOpt.isPresent()) {
-            renderableOpt.get().render(g);
-        }
-
-        // 子エンティティを描画（親の変換を継承）
+        // 子エンティティを取得してZ-orderでソート
         List<Entity> children = entity.getChildren().stream()
                 .filter(Entity::isActive)
                 .filter(e -> e.hasComponent(Renderable.class))
                 .collect(Collectors.toList());
 
-        // 子エンティティもZ-orderでソート
         children.sort((a, b) -> {
-            int za = a.getComponent(Renderable.class).map(Renderable::getZOrder).orElse(0);
-            int zb = b.getComponent(Renderable.class).map(Renderable::getZOrder).orElse(0);
-            return Integer.compare(za, zb);
+            float za = a.getComponent(Renderable.class).map(Renderable::getZOrder).orElse(0f);
+            float zb = b.getComponent(Renderable.class).map(Renderable::getZOrder).orElse(0f);
+            return Float.compare(za, zb);
         });
 
+        // zOrderが負の子エンティティを先に描画（親より後ろに表示）
         for (Entity child : children) {
-            renderEntity(g, child);
+            float childZOrder = child.getComponent(Renderable.class).map(Renderable::getZOrder).orElse(0f);
+            if (childZOrder < 0) {
+                renderEntity(g, child);
+            } else {
+                break;
+            }
+        }
+
+        // 親を描画
+        if (renderableOpt.isPresent()) {
+            renderableOpt.get().render(g);
+        }
+
+        // zOrderが0以上の子エンティティを描画（親より前に表示）
+        for (Entity child : children) {
+            float childZOrder = child.getComponent(Renderable.class).map(Renderable::getZOrder).orElse(0f);
+            if (childZOrder >= 0) {
+                renderEntity(g, child);
+            }
         }
 
         // 変換を復元

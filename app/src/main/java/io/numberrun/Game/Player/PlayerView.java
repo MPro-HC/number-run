@@ -7,24 +7,31 @@ import java.awt.geom.AffineTransform;
 
 import io.numberrun.Component.Oval;
 import io.numberrun.Component.Renderable;
+import io.numberrun.Component.Sprite;
 import io.numberrun.Component.Text;
+import io.numberrun.Component.Transform;
+import io.numberrun.Game.Lane.LaneTransform;
+import io.numberrun.Game.Lane.LaneVelocity;
+import io.numberrun.System.World;
 import io.numberrun.UI.Graphics;
 
 public class PlayerView implements Renderable {
 
     private final Text playerNumberText;
     private final Oval shadowOval;
-    private final Color textColor = new Color(0x0965ef); // #0965ef
-    private final Font textFont = new Font("Arial", Font.BOLD, 48);
+    private final Color textColor = Color.white;
+    private final Font textFont = new Font("Arial", Font.BOLD, 64);
+    private final float textBorderWidth = 5.0f;
+    private final Color textBorderColor = Color.black;
     private float scale = 1.0f; // サイズのスケール
 
     public PlayerView(int playerNumber) {
-        this.playerNumberText = new Text(String.valueOf(playerNumber), textColor, textFont);
+        this.playerNumberText = new Text(String.valueOf(playerNumber), textColor, textFont, 0, textBorderColor, textBorderWidth);
         this.shadowOval = new Oval(40, 20, new Color(0x409bc0f9, true), true); // #9bc0f9
     }
 
     public PlayerView() {
-        this.playerNumberText = new Text("1", textColor, textFont);
+        this.playerNumberText = new Text("1", textColor, textFont, 0, textBorderColor, textBorderWidth);
         this.shadowOval = new Oval(40, 20, new Color(0x409bc0f9, true), true); // #9bc0f9
     }
 
@@ -42,8 +49,13 @@ public class PlayerView implements Renderable {
     }
 
     @Override
-    public int getZOrder() {
+    public float getZOrder() {
         return playerNumberText.getZOrder();
+    }
+
+    @Override
+    public void setZOrder(float zOrder) {
+        // pass
     }
 
     @Override
@@ -69,4 +81,28 @@ public class PlayerView implements Renderable {
     public float getScale() {
         return this.scale;
     }
+
+    public static void setupInitialPlayer(World world) {
+        world.spawn(
+                new PlayerState(),
+                new Transform(),
+                new LaneTransform(
+                        0.0f, // X 座標 （中央)
+                        0.475f // Y 座標 (下側)
+                // false
+                ).setMovementLimit(-0.45f, 0.45f, -0.5f, 0.5f), // 左右移動の範囲を少し制限
+                new LaneVelocity(),
+                new PlayerView()
+        ).addChild(
+                world.spawn(
+                        new Sprite(
+                                PlayerView.class.getResource("/images/runner_sprite.png"),
+                                96, 160,
+                                16.0f
+                        ).withZOrder(-1),
+                        new Transform()
+                )
+        );
+    }
+
 }

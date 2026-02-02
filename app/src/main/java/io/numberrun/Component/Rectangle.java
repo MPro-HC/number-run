@@ -13,7 +13,7 @@ public class Rectangle implements Renderable {
     private float height;
     private Color color;
     private boolean filled;
-    private int zOrder;
+    private float zOrder;
 
     public Rectangle(float width, float height, Color color) {
         this(width, height, color, true, 0);
@@ -23,7 +23,7 @@ public class Rectangle implements Renderable {
         this(width, height, color, filled, 0);
     }
 
-    public Rectangle(float width, float height, Color color, boolean filled, int zOrder) {
+    public Rectangle(float width, float height, Color color, boolean filled, float zOrder) {
         this.width = width;
         this.height = height;
         this.color = color;
@@ -41,7 +41,7 @@ public class Rectangle implements Renderable {
     }
 
     @Override
-    public int getZOrder() {
+    public float getZOrder() {
         return zOrder;
     }
 
@@ -79,7 +79,7 @@ public class Rectangle implements Renderable {
         this.filled = filled;
     }
 
-    public void setZOrder(int zOrder) {
+    public void setZOrder(float zOrder) {
         this.zOrder = zOrder;
     }
 }
