@@ -97,7 +97,7 @@ public class PlayerView implements Renderable {
                 world.spawn(
                         new Sprite(
                                 PlayerView.class.getResource("/images/runner_sprite.png"),
-                                80, 140,
+                                96, 160,
                                 16.0f
                         ).withZOrder(-1),
                         new Transform()

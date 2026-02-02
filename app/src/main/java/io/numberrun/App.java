@@ -18,6 +18,7 @@ import io.numberrun.Game.Grid.GridLineSpawnSystem;
 import io.numberrun.Game.Lane.LaneMappingSystem;
 import io.numberrun.Game.Lane.LaneMovementSystem;
 import io.numberrun.Game.Lane.LaneView;
+import io.numberrun.Game.Level.Level;
 import io.numberrun.Game.Level.LevelSystem;
 import io.numberrun.Game.Player.PlayerMovementSystem;
 import io.numberrun.Game.Player.PlayerPassWallSystem;
@@ -49,7 +50,8 @@ public class App {
             // 本来なら Resource とかで管理すべきだけど、まあ
             world.spawn(
                     new Scene(),
-                    new SceneState(SceneType.GAMEPLAY)
+                    new SceneState(SceneType.GAMEPLAY),
+                    new Level() // ステージ管理
             );
         }
 
