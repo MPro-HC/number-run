@@ -4,6 +4,7 @@ import java.util.List;
 
 import io.numberrun.Component.NamedValue;
 import io.numberrun.Component.Transform;
+import io.numberrun.Component.Image;
 import io.numberrun.Game.Easing.Easing;
 import io.numberrun.System.Entity;
 import io.numberrun.System.GameSystem;
@@ -19,7 +20,6 @@ public class GameOverAdSystem implements GameSystem {
     public int getPriority() {
         return SystemPriority.HIGH.getPriority();
     }
-
     @Override
     public void update(World world, float deltaTime) {
         // ease in と ease out アニメーション
@@ -74,6 +74,9 @@ public class GameOverAdSystem implements GameSystem {
             return;
         }
 
+        float mx = event.getMouseX();
+        float my = event.getMouseY();
+
         // 画面がクリックされたら広告を退場させる
         List<Entity> ads = world.query(GameOverAd.class);
 
@@ -86,12 +89,54 @@ public class GameOverAdSystem implements GameSystem {
                 continue;
             }
 
+
+            // ×ボタン領域だけ反応させる
+            Entity closeButton = findCloseButtonChild(entity);
+            if (closeButton == null) {
+                continue;// 見つからないなら、誤動作を避けるため「閉じない」にしておく
+            }
+            if (!isClickOnCloseButton(entity, closeButton, mx, my)) {
+                continue; // ×以外をクリック -> 何もしない
+            }
+
             // 退場フラグをセット
             ad.setExiting(true);
 
             // Easingをリセットして退場アニメーションを開始
             transition.restart();
+            break; // 広告を追加したとしてもひとつ閉じたら終わり
         }
     }
+    private Entity findCloseButtonChild(Entity adEntity) {
+        for (Entity child : adEntity.getChildren()) {
+            if (!child.hasComponent(NamedValue.class)) continue;
+
+            NamedValue<?> nv = child.getComponent(NamedValue.class).get();
+            if ("closeButton".equals(nv.getName())) {
+                return child;
+            }
+        }
+        return null;
+    }
+
+    private boolean isClickOnCloseButton(Entity adEntity, Entity closeButton, float mx, float my) {
+        Transform pt = adEntity.getComponent(Transform.class).get(); // 親（広告）
+        Transform ct = closeButton.getComponent(Transform.class).get(); // 子(×）
+        Image img = closeButton.getComponent(Image.class).get();
+
+        // 親がscaleしているので、子の位置も親scaleの影響を受ける
+        float gx = pt.getX() + ct.getX() * pt.getScaleX(); // ×の中心座標（グローバル）
+        float gy = pt.getY() + ct.getY() * pt.getScaleY();
+
+        float sx = pt.getScaleX() * ct.getScaleX();
+        float sy = pt.getScaleY() * ct.getScaleY();
+
+        float halfW = (img.getWidth() * sx) / 2f;
+        float halfH = (img.getHeight() * sy) / 2f;
+
+        return (gx - halfW <= mx && mx <= gx + halfW &&
+                gy - halfH <= my && my <= gy + halfH);
+    }
+
 
 }
