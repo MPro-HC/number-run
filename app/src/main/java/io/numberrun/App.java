@@ -27,7 +27,10 @@ import io.numberrun.Game.Player.PlayerViewSyncSystem;
 import io.numberrun.Game.Scene.Scene;
 import io.numberrun.Game.Scene.SceneState;
 import io.numberrun.Game.Scene.SceneType;
+import io.numberrun.Game.Title.TitleExitSystem;
+import io.numberrun.Game.Title.TitleSystem;
 import io.numberrun.System.World; // 自動でサイズ変更したかったので追加
+import io.numberrun.UI.ButtonClickSystem;
 
 public class App {
 
@@ -50,7 +53,7 @@ public class App {
             // 本来なら Resource とかで管理すべきだけど、まあ
             world.spawn(
                     new Scene(),
-                    new SceneState(SceneType.GAMEPLAY),
+                    new SceneState(SceneType.TITLE),
                     new Level() // ステージ管理
             );
         }
@@ -114,7 +117,10 @@ public class App {
                 new DamageEffectSystem(),
                 new PowerUpEffectSystem(),
                 new GameOverAdSystem(),
-                new SpriteAnimationSystem()
+                new SpriteAnimationSystem(),
+                new TitleExitSystem(),
+                new TitleSystem(WINDOW_WIDTH, WINDOW_HEIGHT),
+                new ButtonClickSystem()
         );
 
         // ゲーム開始

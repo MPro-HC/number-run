@@ -92,7 +92,6 @@ public class LevelSystem implements GameSystem {
 
             level.incrementSpawnCount();
             int spawnCount = level.getSpawnCount();
-            System.out.println("Spawning walls, count=" + spawnCount);
 
             // 一定回数ごとにボスを出す
             if (spawnCount % bossInterval == 0) {

@@ -2,9 +2,9 @@ package io.numberrun.Game.GameOver;
 
 import java.util.List;
 
+import io.numberrun.Component.Image;
 import io.numberrun.Component.NamedValue;
 import io.numberrun.Component.Transform;
-import io.numberrun.Component.Image;
 import io.numberrun.Game.Easing.Easing;
 import io.numberrun.System.Entity;
 import io.numberrun.System.GameSystem;
@@ -20,6 +20,7 @@ public class GameOverAdSystem implements GameSystem {
     public int getPriority() {
         return SystemPriority.HIGH.getPriority();
     }
+
     @Override
     public void update(World world, float deltaTime) {
         // ease in と ease out アニメーション
@@ -89,7 +90,6 @@ public class GameOverAdSystem implements GameSystem {
                 continue;
             }
 
-
             // ×ボタン領域だけ反応させる
             Entity closeButton = findCloseButtonChild(entity);
             if (closeButton == null) {
@@ -107,9 +107,12 @@ public class GameOverAdSystem implements GameSystem {
             break; // 広告を追加したとしてもひとつ閉じたら終わり
         }
     }
+
     private Entity findCloseButtonChild(Entity adEntity) {
         for (Entity child : adEntity.getChildren()) {
-            if (!child.hasComponent(NamedValue.class)) continue;
+            if (!child.hasComponent(NamedValue.class)) {
+                continue;
+            }
 
             NamedValue<?> nv = child.getComponent(NamedValue.class).get();
             if ("closeButton".equals(nv.getName())) {
@@ -134,9 +137,8 @@ public class GameOverAdSystem implements GameSystem {
         float halfW = (img.getWidth() * sx) / 2f;
         float halfH = (img.getHeight() * sy) / 2f;
 
-        return (gx - halfW <= mx && mx <= gx + halfW &&
-                gy - halfH <= my && my <= gy + halfH);
+        return (gx - halfW <= mx && mx <= gx + halfW
+                && gy - halfH <= my && my <= gy + halfH);
     }
-
 
 }

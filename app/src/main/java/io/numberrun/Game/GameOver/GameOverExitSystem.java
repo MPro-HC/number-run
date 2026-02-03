@@ -76,7 +76,89 @@ public class GameOverExitSystem implements GameSystem {
         respawnGridLines(world);
     }
 
-    private void despawnOverlay(World world) {
+    public static void exitGameOverEnterGamePlay(World world) {
+        // 広告が表示中、存在しているなら閉じれないように
+        List<Entity> ads = world.query(GameOverAd.class);
+        if (!ads.isEmpty()) {
+            return;
+        }
+
+        // SceneState を取得して、ゲームオーバーシーンからゲームプレイシーンに戻す処理を実装する
+        // 1. world から SceneState を持つエンティティを取得
+        List<Entity> scenes = world.query(SceneState.class);
+        if (scenes.isEmpty()) {
+            return;
+        }
+
+        SceneState sceneState = scenes.get(0).getComponent(SceneState.class).get();
+
+        // ゲームプレイシーンに戻す判定を行う
+        if (sceneState.getCurrentScene() != SceneType.GAME_OVER) {
+            return;
+        }
+
+        // ゲームオーバーシーンからゲームプレイシーンに戻す処理を実行する
+        // 1. SceneState をゲームプレイシーンにセット
+        sceneState.setCurrentScene(SceneType.GAMEPLAY);
+
+        // オーバーレイをデスポーン
+        despawnOverlay(world);
+
+        //  壁を全てデスポーン
+        despawnAllWalls(world);
+
+        // レベル状態をリセット
+        resetLevel(world);
+
+        //  プレイヤーをデスポーン
+        respawnPlayer(world);
+
+        // グリッドをリスポーン
+        respawnGridLines(world);
+    }
+
+    public static void exitGameOverEnterTitle(World world) {
+        // 広告が表示中、存在しているなら閉じれないように
+        List<Entity> ads = world.query(GameOverAd.class);
+        if (!ads.isEmpty()) {
+            return;
+        }
+
+        // SceneState を取得して、ゲームオーバーシーンからゲームプレイシーンに戻す処理を実装する
+        // 1. world から SceneState を持つエンティティを取得
+        List<Entity> scenes = world.query(SceneState.class);
+        if (scenes.isEmpty()) {
+            return;
+        }
+
+        SceneState sceneState = scenes.get(0).getComponent(SceneState.class).get();
+
+        // タイトルへ
+        if (sceneState.getCurrentScene() != SceneType.GAME_OVER) {
+            return;
+        }
+
+        // ゲームオーバーシーンからタイトルシーンに戻す処理を実行する
+        // 1. SceneState をタイトルシーンにセット
+        sceneState.setCurrentScene(SceneType.TITLE);
+
+        // オーバーレイをデスポーン
+        despawnOverlay(world);
+
+        //  壁を全てデスポーン
+        despawnAllWalls(world);
+
+        // レベル状態をリセット
+        resetLevel(world);
+
+        //  プレイヤーをデスポーン
+        respawnPlayer(world);
+
+        // グリッドをリスポーン
+        respawnGridLines(world);
+    }
+
+    private static void despawnOverlay(World world) {
         List<Entity> overlays = world.query(GameOverOverlay.class);
         for (Entity overlay : overlays) {
             overlay.destroy();
@@ -84,7 +166,7 @@ public class GameOverExitSystem implements GameSystem {
     }
 
     // 壁をデスポーン
-    private void despawnAllWalls(World world) {
+    private static void despawnAllWalls(World world) {
         List<Entity> walls = world.query(Wall.class);
         for (Entity wall : walls) {
             wall.destroy();
@@ -92,7 +174,7 @@ public class GameOverExitSystem implements GameSystem {
     }
 
     // プレイヤーをスポーン
-    private void respawnPlayer(World world) {
+    private static void respawnPlayer(World world) {
         List<Entity> players = world.query(PlayerState.class);
         for (Entity player : players) {
             player.destroy();
@@ -101,7 +183,7 @@ public class GameOverExitSystem implements GameSystem {
     }
 
     // グリッドをリスポーン
-    private void respawnGridLines(World world) {
+    private static void respawnGridLines(World world) {
         {
             List<Entity> lines = world.query(GridLine.class);
             for (Entity line : lines) {
@@ -119,7 +201,7 @@ public class GameOverExitSystem implements GameSystem {
     }
 
     // レベルをリセット
-    private void resetLevel(World world) {
+    private static void resetLevel(World world) {
         // レベル情報を取得して、生成回数をリセット
         List<Entity> levels = world.query(Level.class);
         if (levels.isEmpty()) {
