@@ -3,6 +3,7 @@ package io.numberrun.Game.GameOver;
 import java.awt.Color;
 import java.util.List;
 
+import io.numberrun.Component.Button;
 import io.numberrun.Component.GradientRectangle;
 import io.numberrun.Component.Image;
 import io.numberrun.Component.NamedValue;
@@ -107,6 +108,46 @@ public class GameOverSystem implements GameSystem {
                         windowWidth, windowHeight
                 ).withZOrder(201),
                 new Transform()
+        );
+        world.spawn(
+                new GameOverOverlay(),
+                new Image(
+                        GameOverSystem.class.getResource("/images/restart_button.png"),
+                        windowWidth * 2 / 3,
+                        windowHeight / 5
+                ).withZOrder(201),
+                new Transform(
+                        // 中央、下10%
+                        0,
+                        windowHeight * 0.1f
+                ),
+                new Button() {
+            @Override
+            public void onClick(World world) {
+                // ゲームオーバーからゲームプレイに移行する
+                GameOverExitSystem.exitGameOverEnterGamePlay(world);
+            }
+        }
+        );
+        world.spawn(
+                new GameOverOverlay(),
+                new Image(
+                        GameOverSystem.class.getResource("/images/title_button.png"),
+                        windowWidth * 2 / 3,
+                        windowHeight / 5
+                ).withZOrder(201),
+                new Transform(
+                        // 中央、下30%
+                        0,
+                        windowHeight * 0.3f
+                ),
+                new Button() {
+            @Override
+            public void onClick(World world) {
+                // ゲームオーバーからタイトルに移行する
+                GameOverExitSystem.exitGameOverEnterTitle(world);
+            }
+        }
         );
     }
 
