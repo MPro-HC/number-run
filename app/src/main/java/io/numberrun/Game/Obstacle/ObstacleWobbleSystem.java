@@ -27,7 +27,7 @@ public class ObstacleWobbleSystem implements GameSystem {
             wobble.addTime(deltaTime);
 
             float x = wobble.getBaseX()
-                    + wobble.getAmplitude() * (float)Math.sin(wobble.getOmega() * wobble.getT() + wobble.getPhase());
+                    + wobble.getAmplitude() * (float) Math.sin(wobble.getOmega() * wobble.getT() + wobble.getPhase());
 
             lt.setLaneX(x); // movementLimit が効く
         }
