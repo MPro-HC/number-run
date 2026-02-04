@@ -29,7 +29,7 @@ import io.numberrun.Game.Scene.SceneState;
 import io.numberrun.Game.Scene.SceneType;
 import io.numberrun.Game.Title.TitleExitSystem;
 import io.numberrun.Game.Title.TitleSystem;
-import io.numberrun.System.World; // 自動でサイズ変更したかったので追加
+import io.numberrun.System.World;
 import io.numberrun.UI.ButtonClickSystem;
 
 public class App {
