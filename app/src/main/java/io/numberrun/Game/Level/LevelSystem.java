@@ -5,6 +5,9 @@ import java.util.Optional;
 import java.util.Random;
 
 import io.numberrun.Component.Transform;
+import io.numberrun.Component.Image;
+import io.numberrun.Game.Obstacle.Obstacle;
+import io.numberrun.Game.Obstacle.ObstacleWobble;
 import io.numberrun.Game.Lane.LaneSize;
 import io.numberrun.Game.Lane.LaneTransform;
 import io.numberrun.Game.Lane.LaneVelocity;
@@ -71,6 +74,7 @@ public class LevelSystem implements GameSystem {
 
         // 画面外に抜けた壁を削除
         cleanupWalls(world);
+        cleanupObstacles(world);
 
         // 壁が多すぎるときは生成しない（保険）
         int wallCount = world.query(Wall.class).size();
@@ -105,6 +109,14 @@ public class LevelSystem implements GameSystem {
             } else {
                 spawnWallPair(world, laneView, yOffset, spawnCount);
             }
+            // 壁列間の距離（Y方向）= WALL_SPEED * SPAWN_INTERVAL_SEC
+            float gapHalf = WALL_SPEED * SPAWN_INTERVAL_SEC / 2f;
+
+            // 1回目は「前の壁列」が存在しないので、2列目以降から出す
+            if (spawnCount >= 2 && random.nextFloat() < 0.35f) {
+                // 壁列と壁列の間に置くため、yOffset に gapHalf を足して前へずらす
+                spawnSawObstacle(world, yOffset + gapHalf);
+            }
 
         }
     }
@@ -132,6 +144,48 @@ public class LevelSystem implements GameSystem {
                 e.destroy();
             }
         }
+    }
+
+    private void cleanupObstacles(World world) {
+        for (Entity e : world.query(Obstacle.class, LaneTransform.class)) {
+            LaneTransform lt = e.getComponent(LaneTransform.class).get();
+            if (lt.getLaneY() > DESPAWN_Y) {
+                e.destroy();
+            }
+        }
+    }
+
+      private void spawnSawObstacle(World world, float yOffset) {
+        // 最初の出現中心（左・中央・右どれか）
+        // float[] bases = new float[]{ LEFT_X, 0f, RIGHT_X };
+        // float baseX = bases[random.nextInt(bases.length)];
+        float baseX = 0f;   // 常に中央を基準に左右に振る
+        float amplitude = 0.4f;  // 端まで
+
+        // 往復周期：2.0秒で1往復にしたいなら、sin の角速度 omega=2π/T
+        float periodSec = 2.0f;
+        float omega = (float)(2.0 * Math.PI / periodSec);
+
+        // ばらけるように初期位相
+        float phase = random.nextFloat() * (float)(2.0 * Math.PI);
+
+        float sizePx = 170f;
+
+        world.spawn(
+                new Transform(),
+                new Image(
+                        LevelSystem.class.getResource("/images/saw_blade.png"),
+                        sizePx, sizePx
+                ).withZOrder(-10),
+                new LaneSize(0.35f, 0.1f),
+                new LaneTransform(baseX, SPAWN_Y + yOffset)
+                        // 横移動の上限をレーン内に制限（はみ出し防止）
+                        .setMovementLimit(-0.45f, 0.45f, -0.5f, 1.0f),
+                // 速度は壁と同じ（重要）
+                new LaneVelocity(0f, WALL_SPEED),
+                new Obstacle(),
+                new ObstacleWobble(baseX, amplitude, omega, phase)
+        );
     }
 
     private void spawnWallPair(World world, LaneView laneView, float yOffset, int spawnCount) {

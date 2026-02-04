@@ -12,6 +12,7 @@ import io.numberrun.Component.Text;
 import io.numberrun.Component.Transform;
 import io.numberrun.Game.Lane.LaneTransform;
 import io.numberrun.Game.Lane.LaneVelocity;
+import io.numberrun.Game.Lane.LaneSize;
 import io.numberrun.System.World;
 import io.numberrun.UI.Graphics;
 
@@ -92,6 +93,7 @@ public class PlayerView implements Renderable {
                 // false
                 ).setMovementLimit(-0.45f, 0.45f, -0.5f, 0.5f), // 左右移動の範囲を少し制限
                 new LaneVelocity(),
+                new LaneSize(0.18f, 0.18f),
                 new PlayerView()
         ).addChild(
                 world.spawn(
