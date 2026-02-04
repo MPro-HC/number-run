@@ -100,6 +100,13 @@ public class LevelSystem implements GameSystem {
             level.incrementSpawnCount();
             int spawnCount = level.getSpawnCount();
 
+            // ゴール生成後は通常の壁生成を止める
+            var flags = world.query(io.numberrun.Game.Goal.GoalFlag.class);
+            if (!flags.isEmpty()) {
+                var flag = flags.get(0).getComponent(io.numberrun.Game.Goal.GoalFlag.class).get();
+                if (flag.isStopSpawns()) return;
+            }
+
             // 一定回数ごとにボスを出す
             if (spawnCount % bossInterval == 0) {
                 // プレイヤーの現在の値を取得して、それが1に近くなるようにランダムに補正する

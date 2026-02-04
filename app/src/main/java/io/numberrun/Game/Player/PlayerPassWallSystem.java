@@ -10,6 +10,7 @@ import io.numberrun.Component.Transform;
 import io.numberrun.Core.SoundManager;
 import io.numberrun.Game.Effect.DamageEffectSystem;
 import io.numberrun.Game.Effect.PowerUpEffectSystem;
+import io.numberrun.Game.Goal.GoalFlag;
 import io.numberrun.Game.Lane.LaneSize;
 import io.numberrun.Game.Lane.LaneTransform;
 import io.numberrun.Game.Lane.LaneVelocity;
@@ -54,6 +55,15 @@ public class PlayerPassWallSystem implements GameSystem {
 
     @Override
     public void update(World world, float deltaTime) {
+
+        // GAMEPLAY 以外では壁判定しない（BONUS/RESULTで誤作動防止）
+        var sceneEntity = world.query(io.numberrun.Game.Scene.Scene.class, io.numberrun.Game.Scene.SceneState.class)
+                            .stream().findFirst();
+        if (sceneEntity.isEmpty()) return;
+
+        var sceneState = sceneEntity.get().getComponent(io.numberrun.Game.Scene.SceneState.class).get();
+        if (sceneState.getCurrentScene() != io.numberrun.Game.Scene.SceneType.GAMEPLAY) return;
+                
 
         // 壁を通過したかの判定 + 通過した際の効果を適用する
         // 1. world から PlayerState, LaneTransform を持つエンティティを取得する
@@ -132,6 +142,13 @@ public class PlayerPassWallSystem implements GameSystem {
 
             // 4.2 壁エンティティを world から削除する (無効化する)
             wallEntity.destroy();
+            List<Entity> flags = world.query(GoalFlag.class);
+            if (!flags.isEmpty()) {
+                GoalFlag flag = flags.get(0).getComponent(GoalFlag.class).get();
+
+                // 50%で1減らす
+                flag.tryDecrement50();
+            }
             break;
 
         }

@@ -108,6 +108,7 @@ public class GameOverExitSystem implements GameSystem {
 
         //  壁を全てデスポーン
         despawnAllWalls(world);
+        despawnAllObstacles(world);
 
         // レベル状態をリセット
         resetLevel(world);
@@ -149,6 +150,7 @@ public class GameOverExitSystem implements GameSystem {
 
         //  壁を全てデスポーン
         despawnAllWalls(world);
+        despawnAllObstacles(world);
 
         // レベル状態をリセット
         resetLevel(world);

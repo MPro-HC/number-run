@@ -8,12 +8,18 @@ import io.numberrun.Component.Image;
 import io.numberrun.Component.Transform;
 import io.numberrun.Core.GameEngine;
 import io.numberrun.Game.Animation.SpriteAnimationSystem;
+import io.numberrun.Game.Bonus.BonusSpawnSystem;
+import io.numberrun.Game.Bonus.PlayerPassScoreWallSystem;
 import io.numberrun.Game.Effect.DamageEffectSystem;
 import io.numberrun.Game.Effect.PowerUpEffectSystem;
 import io.numberrun.Game.GameOver.GameOverAdSystem;
 import io.numberrun.Game.GameOver.GameOverExitSystem;
 import io.numberrun.Game.GameOver.GameOverSystem;
 import io.numberrun.Game.GlobalCursor.GlobalCursorSystem;
+import io.numberrun.Game.Result.ResultSystem;
+import io.numberrun.Game.Result.ResultExitSystem;
+import io.numberrun.Game.Goal.GoalSpawnSystem;
+import io.numberrun.Game.Goal.PlayerPassGoalSystem;
 import io.numberrun.Game.Grid.GridLineSpawnSystem;
 import io.numberrun.Game.Lane.LaneMappingSystem;
 import io.numberrun.Game.Lane.LaneMovementSystem;
@@ -114,6 +120,12 @@ public class App {
                 new GridLineSpawnSystem(), // レーン上にグリッドを表示する
                 new PlayerViewSyncSystem(),
                 new PlayerMovementSystem(), // プレイヤー操作 (キーが入力された時に速度を適用する)
+                new GoalSpawnSystem(),
+                new PlayerPassGoalSystem(),
+                new BonusSpawnSystem(),
+                new PlayerPassScoreWallSystem(),
+                new ResultSystem(WINDOW_WIDTH, WINDOW_HEIGHT),
+                new ResultExitSystem(),
                 new PlayerPassWallSystem(
                         WINDOW_WIDTH,
                         WINDOW_HEIGHT
