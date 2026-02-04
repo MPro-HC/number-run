@@ -12,6 +12,7 @@ import io.numberrun.Game.Player.PlayerView;
 import io.numberrun.Game.Scene.SceneState;
 import io.numberrun.Game.Scene.SceneType;
 import io.numberrun.Game.Wall.Wall;
+import io.numberrun.Game.Obstacle.Obstacle;
 import io.numberrun.System.Entity;
 import io.numberrun.System.GameSystem;
 import io.numberrun.System.SystemPriority;
@@ -65,6 +66,7 @@ public class GameOverExitSystem implements GameSystem {
 
         //  壁を全てデスポーン
         despawnAllWalls(world);
+        despawnAllObstacles(world);
 
         // レベル状態をリセット
         resetLevel(world);
@@ -170,6 +172,13 @@ public class GameOverExitSystem implements GameSystem {
         List<Entity> walls = world.query(Wall.class);
         for (Entity wall : walls) {
             wall.destroy();
+        }
+    }
+
+    static void despawnAllObstacles(World world) {
+        List<Entity> obstacles = world.query(Obstacle.class);
+        for (Entity obstacle : obstacles) {
+            obstacle.destroy();
         }
     }
 
