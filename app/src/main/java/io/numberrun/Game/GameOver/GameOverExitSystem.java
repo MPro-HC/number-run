@@ -7,12 +7,12 @@ import io.numberrun.Game.Grid.GridLine;
 import io.numberrun.Game.Grid.GridLineSpawnSystem;
 import io.numberrun.Game.Lane.LaneView;
 import io.numberrun.Game.Level.Level;
+import io.numberrun.Game.Obstacle.Obstacle;
 import io.numberrun.Game.Player.PlayerState;
 import io.numberrun.Game.Player.PlayerView;
 import io.numberrun.Game.Scene.SceneState;
 import io.numberrun.Game.Scene.SceneType;
 import io.numberrun.Game.Wall.Wall;
-import io.numberrun.Game.Obstacle.Obstacle;
 import io.numberrun.System.Entity;
 import io.numberrun.System.GameSystem;
 import io.numberrun.System.SystemPriority;
@@ -66,6 +66,7 @@ public class GameOverExitSystem implements GameSystem {
 
         //  壁を全てデスポーン
         despawnAllWalls(world);
+
         despawnAllObstacles(world);
 
         // レベル状態をリセット
@@ -109,6 +110,9 @@ public class GameOverExitSystem implements GameSystem {
         //  壁を全てデスポーン
         despawnAllWalls(world);
 
+        // 障害物を全てデスポーン
+        despawnAllObstacles(world);
+
         // レベル状態をリセット
         resetLevel(world);
 
@@ -149,6 +153,9 @@ public class GameOverExitSystem implements GameSystem {
 
         //  壁を全てデスポーン
         despawnAllWalls(world);
+
+        // 障害物を全てデスポーン
+        despawnAllObstacles(world);
 
         // レベル状態をリセット
         resetLevel(world);
