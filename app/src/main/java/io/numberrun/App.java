@@ -41,7 +41,7 @@ public class App {
     public static void main(String[] args) {
         // オーディオシステムを事前に初期化
         SoundManager.warmup();
-        
+
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         // 画面の高さの 80% をウィンドウの高さにする (大きすぎず小さすぎず)
         int WINDOW_HEIGHT = (int) (screenSize.height * 0.9);
