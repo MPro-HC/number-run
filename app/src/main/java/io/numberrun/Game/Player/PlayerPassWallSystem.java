@@ -119,7 +119,7 @@ public class PlayerPassWallSystem implements GameSystem {
                 DamageEffectSystem.spawnDamageEffect(world, windowWidth, windowHeight);
                 if (newNumber <= 0) {
                     // ゲームオーバーになった場合
-					SoundManager.stopAll();
+                    SoundManager.stopAll();
                     SoundManager.play("/sounds/gameover.wav");
                 } else {
                     // まだ生きている（ダメージのみ）場合
