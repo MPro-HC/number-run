@@ -126,8 +126,14 @@ public class SoundManager {
     public static void stopAll() {
         synchronized (activeClips) {
             for (Clip clip : new ArrayList<>(activeClips)) {
-                if (clip.isRunning()) clip.stop();
-                clip.close();
+                try {
+                    if (clip.isRunning()) {
+                        clip.stop();
+                    }
+                    clip.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
             activeClips.clear();
         }
