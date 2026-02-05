@@ -14,52 +14,56 @@ import javax.sound.sampled.LineEvent;
 public class SoundManager {
 
     private static final List<Clip> activeClips = Collections.synchronizedList(new ArrayList<>());
-    private static boolean initialized = false;
+    private static volatile boolean initialized = false;
 
     /**オーディオシステムを事前に初期化（実際に音を無音で再生して完全に起動させる）*/
     public static void warmup() {
         if (initialized) return;
-        
-        // 別スレッドでウォームアップを実行（メインスレッドをブロックしない）
-        Thread warmupThread = new Thread(() -> {
+
+        synchronized (SoundManager.class) {
+            if (initialized) return;
+
+            // 別スレッドでウォームアップを実行（メインスレッドをブロックしない）
+            Thread warmupThread = new Thread(() -> {
+                try {
+                    URL url = SoundManager.class.getResource("/sounds/powerup.wav");
+                    if (url == null) {
+                        System.err.println("Warmup sound not found");
+                        return;
+                    }
+
+                    AudioInputStream audioIn = AudioSystem.getAudioInputStream(url);
+                    Clip clip = AudioSystem.getClip();
+                    clip.open(audioIn);
+
+                    // 音量を0にして無音で再生
+                    if (clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
+                        FloatControl volume = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+                        volume.setValue(volume.getMinimum());
+                    }
+
+                    clip.start();
+                    Thread.sleep(50); // 短めに待機
+                    clip.stop();
+                    clip.close();
+                    audioIn.close();
+
+                    initialized = true;
+                    System.out.println("[SoundManager] Audio system ready");
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+
+            warmupThread.start();
+
+            // ウォームアップ完了を待つ（最大500ms）
             try {
-                URL url = SoundManager.class.getResource("/sounds/powerup.wav");
-                if (url == null) {
-                    System.err.println("Warmup sound not found");
-                    return;
-                }
-                
-                AudioInputStream audioIn = AudioSystem.getAudioInputStream(url);
-                Clip clip = AudioSystem.getClip();
-                clip.open(audioIn);
-                
-                // 音量を0にして無音で再生
-                if (clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
-                    FloatControl volume = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-                    volume.setValue(volume.getMinimum());
-                }
-                
-                clip.start();
-                Thread.sleep(50); // 短めに待機
-                clip.stop();
-                clip.close();
-                audioIn.close();
-                
-                initialized = true;
-                System.out.println("[SoundManager] Audio system ready");
-                
-            } catch (Exception e) {
+                warmupThread.join(500);
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        });
-        
-        warmupThread.start();
-        
-        // ウォームアップ完了を待つ（最大500ms）
-        try {
-            warmupThread.join(500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         }
     }
 
