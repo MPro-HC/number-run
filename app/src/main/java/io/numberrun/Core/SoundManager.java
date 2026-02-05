@@ -120,7 +120,9 @@ public class SoundManager {
         }).start();
     }
 
-    /*再生中の全ての音を停止*/
+    /**
+     * 再生中の全ての音を停止する
+     */
     public static void stopAll() {
         synchronized (activeClips) {
             for (Clip clip : new ArrayList<>(activeClips)) {
