@@ -31,15 +31,15 @@ public class PlayerHitObstacleSystem implements GameSystem {
     @Override
     public void update(World world, float deltaTime) {
         List<Entity> players = world.query(PlayerState.class, LaneTransform.class);
-        if (players.isEmpty()) return;
+        if (players.isEmpty()) {
+            return;
+        }
 
         Entity player = players.get(0);
         PlayerState ps = player.getComponent(PlayerState.class).get();
         LaneTransform pT = player.getComponent(LaneTransform.class).get();
         float px = pT.getLaneX();
         float py = pT.getLaneY();
-
-        int previousNumber = ps.getNumber();
 
         List<Entity> obstacles = world.query(Obstacle.class, LaneTransform.class, LaneSize.class);
 
@@ -50,9 +50,12 @@ public class PlayerHitObstacleSystem implements GameSystem {
             float ox = oT.getLaneX();
             float oy = oT.getLaneY();
             float w = oS.getWidth();
+
             // X範囲判定（壁と同じ考え方）
             boolean passX = (px + 0.01f >= ox - w / 2) && (px - 0.01f <= ox + w / 2);
-            if (!passX) continue;
+            if (!passX) {
+                continue;
+            }
 
             // “通過”判定（壁と同じ）
             float vy = o.getComponent(LaneVelocity.class)
@@ -65,7 +68,9 @@ public class PlayerHitObstacleSystem implements GameSystem {
                     ? (prevOY < py) && (oy >= py)
                     : (oy >= py);
 
-            if (!crossed) continue;
+            if (!crossed) {
+                continue;
+            }
 
             // 効果：半減
             ps.setNumber(ps.getNumber() / 2);

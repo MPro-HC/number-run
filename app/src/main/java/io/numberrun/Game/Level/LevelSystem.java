@@ -1,17 +1,20 @@
 package io.numberrun.Game.Level;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
-import io.numberrun.Component.Transform;
 import io.numberrun.Component.Image;
-import io.numberrun.Game.Obstacle.Obstacle;
-import io.numberrun.Game.Obstacle.ObstacleWobble;
+import io.numberrun.Component.Text;
+import io.numberrun.Component.Transform;
 import io.numberrun.Game.Lane.LaneSize;
 import io.numberrun.Game.Lane.LaneTransform;
 import io.numberrun.Game.Lane.LaneVelocity;
 import io.numberrun.Game.Lane.LaneView;
+import io.numberrun.Game.Obstacle.Obstacle;
+import io.numberrun.Game.Obstacle.ObstacleWobble;
 import io.numberrun.Game.Player.PlayerState;
 import io.numberrun.Game.Scene.Scene;
 import io.numberrun.Game.Scene.SceneState;
@@ -155,29 +158,27 @@ public class LevelSystem implements GameSystem {
         }
     }
 
-      private void spawnSawObstacle(World world, float yOffset) {
+    private void spawnSawObstacle(World world, float yOffset) {
         // 最初の出現中心（左・中央・右どれか）
-        // float[] bases = new float[]{ LEFT_X, 0f, RIGHT_X };
-        // float baseX = bases[random.nextInt(bases.length)];
         float baseX = 0f;   // 常に中央を基準に左右に振る
         float amplitude = 0.4f;  // 端まで
 
         // 往復周期：2.0秒で1往復にしたいなら、sin の角速度 omega=2π/T
         float periodSec = 2.0f;
-        float omega = (float)(2.0 * Math.PI / periodSec);
+        float omega = (float) (2.0 * Math.PI / periodSec);
 
         // ばらけるように初期位相
-        float phase = random.nextFloat() * (float)(2.0 * Math.PI);
+        float phase = random.nextFloat() * (float) (2.0 * Math.PI);
 
-        float sizePx = 170f;
+        float sizePx = 200f;
 
         world.spawn(
                 new Transform(),
                 new Image(
                         LevelSystem.class.getResource("/images/saw_blade.png"),
                         sizePx, sizePx
-                ).withZOrder(-10),
-                new LaneSize(0.35f, 0.1f),
+                ),
+                new LaneSize(0.4f, 0.4f),
                 new LaneTransform(baseX, SPAWN_Y + yOffset)
                         // 横移動の上限をレーン内に制限（はみ出し防止）
                         .setMovementLimit(-0.45f, 0.45f, -0.5f, 1.0f),
@@ -185,7 +186,22 @@ public class LevelSystem implements GameSystem {
                 new LaneVelocity(0f, WALL_SPEED),
                 new Obstacle(),
                 new ObstacleWobble(baseX, amplitude, omega, phase)
+        ).addChildren(
+                world.spawn(
+                        new Transform(),
+                        new Image(
+                                LevelSystem.class.getResource("/images/saw_wheel.png"),
+                                sizePx, sizePx
+                        ).withZOrder(1) // ホイールは刃よりも上に描画して回転しない
+                ),
+                world.spawn(
+                        new Transform(),
+                        new Text(
+                                "÷2", Color.WHITE, new Font("SansSerif", Font.BOLD, 96), 0, Color.BLACK, 6f
+                        ).withZOrder(2) // 触れたときに割られることを明示
+                )
         );
+
     }
 
     private void spawnWallPair(World world, LaneView laneView, float yOffset, int spawnCount) {

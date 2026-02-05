@@ -17,12 +17,12 @@ import io.numberrun.Game.GlobalCursor.GlobalCursorSystem;
 import io.numberrun.Game.Grid.GridLineSpawnSystem;
 import io.numberrun.Game.Lane.LaneMappingSystem;
 import io.numberrun.Game.Lane.LaneMovementSystem;
-// import io.numberrun.Game.Obstacle.ObstacleRotateSystem; // 障害物の回転
-import io.numberrun.Game.Obstacle.PlayerHitObstacleSystem;
-import io.numberrun.Game.Obstacle.ObstacleWobbleSystem;
 import io.numberrun.Game.Lane.LaneView;
 import io.numberrun.Game.Level.Level;
 import io.numberrun.Game.Level.LevelSystem;
+import io.numberrun.Game.Obstacle.ObstacleRotateSystem;
+import io.numberrun.Game.Obstacle.ObstacleWobbleSystem;
+import io.numberrun.Game.Obstacle.PlayerHitObstacleSystem;
 import io.numberrun.Game.Player.PlayerMovementSystem;
 import io.numberrun.Game.Player.PlayerPassWallSystem;
 import io.numberrun.Game.Player.PlayerView;
@@ -32,7 +32,7 @@ import io.numberrun.Game.Scene.SceneState;
 import io.numberrun.Game.Scene.SceneType;
 import io.numberrun.Game.Title.TitleExitSystem;
 import io.numberrun.Game.Title.TitleSystem;
-import io.numberrun.System.World; // 自動でサイズ変更したかったので追加
+import io.numberrun.System.World;
 import io.numberrun.UI.ButtonClickSystem;
 
 public class App {
@@ -105,7 +105,7 @@ public class App {
                 new LevelSystem(), // レベル進行・障害物生成システム
                 new LaneMovementSystem(),
                 new ObstacleWobbleSystem(),
-                // new ObstacleRotateSystem(), // 障害物の回転、あってもなくてもいい
+                new ObstacleRotateSystem(), // 障害物の回転、あってもなくてもいい
                 new PlayerHitObstacleSystem(
                         WINDOW_WIDTH,
                         WINDOW_HEIGHT
