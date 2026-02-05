@@ -178,7 +178,7 @@ public class LevelSystem implements GameSystem {
                         LevelSystem.class.getResource("/images/saw_blade.png"),
                         sizePx, sizePx
                 ),
-                new LaneSize(0.25f, 0.25f),
+                new LaneSize(0.4f, 0.4f),
                 new LaneTransform(baseX, SPAWN_Y + yOffset)
                         // 横移動の上限をレーン内に制限（はみ出し防止）
                         .setMovementLimit(-0.45f, 0.45f, -0.5f, 1.0f),
@@ -198,7 +198,7 @@ public class LevelSystem implements GameSystem {
                         new Transform(),
                         new Text(
                                 "÷2", Color.WHITE, new Font("SansSerif", Font.BOLD, 96), 0, Color.BLACK, 6f
-                        ).withZOrder(2) // ホイールは刃よりも上に描画して回転しない
+                        ).withZOrder(2) // 触れたときに割られることを明示
                 )
         );
 
