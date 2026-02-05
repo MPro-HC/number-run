@@ -8,17 +8,63 @@ import java.util.List;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineEvent;
 
 public class SoundManager {
 
-    // 再生中のClipを保持するリスト（勝手にGCされて音が途切れるのを防ぐ＆一括停止用）
     private static final List<Clip> activeClips = Collections.synchronizedList(new ArrayList<>());
+    private static boolean initialized = false;
+
+    /**オーディオシステムを事前に初期化（実際に音を無音で再生して完全に起動させる）*/
+    public static void warmup() {
+        if (initialized) return;
+        
+        // 別スレッドでウォームアップを実行（メインスレッドをブロックしない）
+        Thread warmupThread = new Thread(() -> {
+            try {
+                URL url = SoundManager.class.getResource("/sounds/powerup.wav");
+                if (url == null) {
+                    System.err.println("Warmup sound not found");
+                    return;
+                }
+                
+                AudioInputStream audioIn = AudioSystem.getAudioInputStream(url);
+                Clip clip = AudioSystem.getClip();
+                clip.open(audioIn);
+                
+                // 音量を0にして無音で再生
+                if (clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
+                    FloatControl volume = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+                    volume.setValue(volume.getMinimum());
+                }
+                
+                clip.start();
+                Thread.sleep(50); // 短めに待機
+                clip.stop();
+                clip.close();
+                audioIn.close();
+                
+                initialized = true;
+                System.out.println("[SoundManager] Audio system ready");
+                
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        
+        warmupThread.start();
+        
+        // ウォームアップ完了を待つ（最大500ms）
+        try {
+            warmupThread.join(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
     /**
      * 指定されたパスのサウンドファイルを再生する
-     *
-     * @param path リソースパス (例: "/sounds/powerup.wav")
      */
     public static void play(String path) {
         new Thread(() -> {
@@ -55,6 +101,7 @@ public class SoundManager {
 
                 clip.open(audioIn);
                 clip.start();
+
             } catch (Exception e) {
                 e.printStackTrace();
                 // エラー時のクリーンアップ
@@ -73,18 +120,12 @@ public class SoundManager {
         }).start();
     }
 
-    /**
-     * 現在再生中の全ての音を停止する
-     */
+    /*再生中の全ての音を停止*/
     public static void stopAll() {
         synchronized (activeClips) {
-            // コピーを作って回さないと、close()した瞬間にイベントリスナーが動いてremoveされエラーになる可能性がある
-            List<Clip> clipsToStop = new ArrayList<>(activeClips); 
-            for (Clip clip : clipsToStop) {
-                if (clip.isRunning()) {
-                    clip.stop();
-                }
-                clip.close(); // closeすればSTOPイベントが飛び、リストからはリスナー経由で消える
+            for (Clip clip : new ArrayList<>(activeClips)) {
+                if (clip.isRunning()) clip.stop();
+                clip.close();
             }
             activeClips.clear();
         }
