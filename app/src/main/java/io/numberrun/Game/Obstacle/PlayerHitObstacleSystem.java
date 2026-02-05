@@ -76,11 +76,7 @@ public class PlayerHitObstacleSystem implements GameSystem {
             ps.setNumber(ps.getNumber() / 2);
 
             DamageEffectSystem.spawnDamageEffect(world, windowWidth, windowHeight);
-            if (ps.getNumber() <= 0) {
-                SoundManager.play("/sounds/dam.wav");
-            } else {
-                SoundManager.play("/sounds/damage.wav");
-            }
+            SoundManager.play("/sounds/crash.wav");
 
             o.destroy();
             break;

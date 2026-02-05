@@ -7,6 +7,7 @@ import java.awt.Toolkit;
 import io.numberrun.Component.Image;
 import io.numberrun.Component.Transform;
 import io.numberrun.Core.GameEngine;
+import io.numberrun.Core.SoundManager;
 import io.numberrun.Game.Animation.SpriteAnimationSystem;
 import io.numberrun.Game.Effect.DamageEffectSystem;
 import io.numberrun.Game.Effect.PowerUpEffectSystem;
@@ -38,6 +39,9 @@ import io.numberrun.UI.ButtonClickSystem;
 public class App {
 
     public static void main(String[] args) {
+        // オーディオシステムを事前に初期化
+        SoundManager.warmup();
+        
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         // 画面の高さの 80% をウィンドウの高さにする (大きすぎず小さすぎず)
         int WINDOW_HEIGHT = (int) (screenSize.height * 0.9);
