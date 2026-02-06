@@ -16,12 +16,18 @@ public class SoundManager {
     private static final List<Clip> activeClips = Collections.synchronizedList(new ArrayList<>());
     private static volatile boolean initialized = false;
 
-    /**オーディオシステムを事前に初期化（実際に音を無音で再生して完全に起動させる）*/
+    /**
+     * オーディオシステムを事前に初期化（実際に音を無音で再生して完全に起動させる）
+     */
     public static void warmup() {
-        if (initialized) return;
+        if (initialized) {
+            return;
+        }
 
         synchronized (SoundManager.class) {
-            if (initialized) return;
+            if (initialized) {
+                return;
+            }
 
             // 別スレッドでウォームアップを実行（メインスレッドをブロックしない）
             Thread warmupThread = new Thread(() -> {
