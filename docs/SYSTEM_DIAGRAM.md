@@ -175,6 +175,18 @@ classDiagram
         +update(World, float)
     }
     
+    class ObstacleRotateSystem {
+        +update(World, float)
+    }
+    
+    class ObstacleWobbleSystem {
+        +update(World, float)
+    }
+    
+    class PlayerHitObstacleSystem {
+        +update(World, float)
+    }
+    
     MovementSystem ..|> GameSystem : implements
     PlayerMovementSystem ..|> GameSystem : implements
     PlayerPassWallSystem ..|> GameSystem : implements
@@ -194,6 +206,9 @@ classDiagram
     DamageEffectSystem ..|> GameSystem : implements
     PowerUpEffectSystem ..|> GameSystem : implements
     SpriteAnimationSystem ..|> GameSystem : implements
+    ObstacleRotateSystem ..|> GameSystem : implements
+    ObstacleWobbleSystem ..|> GameSystem : implements
+    PlayerHitObstacleSystem ..|> GameSystem : implements
 ```
 
 ## システム分類
@@ -224,10 +239,13 @@ classDiagram
 - **GameOverExitSystem**: ゲームオーバー画面の終了処理
 - **GameOverAdSystem**: ゲームオーバー広告の制御
 
-### エフェクト・アニメーションシステム
+### エフェクト・アニメーション・障害物システム
 - **DamageEffectSystem**: ダメージエフェクトの処理
 - **PowerUpEffectSystem**: パワーアップエフェクトの処理
 - **SpriteAnimationSystem**: スプライトアニメーション
+- **ObstacleRotateSystem**: 障害物の回転
+- **ObstacleWobbleSystem**: 障害物の左右往復動作
+- **PlayerHitObstacleSystem**: プレイヤーと障害物の衝突判定
 
 ## システムの実行順序
 

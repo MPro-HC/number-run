@@ -6,3 +6,6 @@ build
 
 # Ignore local binary files
 bin
+
+# mac
+.DS_Store

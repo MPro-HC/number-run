@@ -50,18 +50,22 @@ App、GameEngine、SoundManagerと、ゲームループの構造を含みます�
 
 ```
 io.numberrun
-├── core/          # GameEngine, SoundManager
-├── system/        # World, Entity, GameSystem, SystemPriority
-├── component/     # Component, Renderable, Button
-└── game/          # ゲーム固有のSystem & Component
-    ├── scene/     # Scene, SceneState, SceneType
-    ├── player/    # PlayerState, PlayerView, PlayerSystem
-    ├── level/     # Level, LevelSystem
-    ├── lane/      # Lane関連Component & System
-    ├── wall/      # Wall, WallType, WallView
-    ├── grid/      # GridLine, GridLineSystem
-    ├── cursor/    # Cursor関連Component & System
-    ├── effect/    # Effect, Easing
-    ├── title/     # Title画面
-    └── gameover/  # GameOver画面
+├── Core/           # GameEngine, SoundManager
+├── System/         # World, Entity, GameSystem, SystemPriority
+├── Component/      # Component, Renderable, Button & 基本コンポーネント
+├── UI/             # InputEvent, InputState, InputType, Graphics, ButtonClickSystem
+└── Game/           # ゲーム固有のSystem & Component
+    ├── Scene/       # Scene, SceneState, SceneType
+    ├── Player/      # PlayerState, PlayerView, PlayerMovementSystem, PlayerPassWallSystem, PlayerViewSyncSystem
+    ├── Level/       # Level, LevelSystem
+    ├── Lane/        # Lane関連Component & System
+    ├── Wall/        # Wall, WallType, WallView
+    ├── Grid/        # GridLine, GridLineSpawnSystem
+    ├── Cursor/      # CursorView, CursorSystem
+    ├── GlobalCursor/ # GlobalCursorModel, GlobalCursorSystem
+    ├── Obstacle/    # Obstacle, ObstacleWobble & 関連System
+    ├── Effect/      # DamageEffect, PowerUpEffect, Easing & 関連System
+    ├── Animation/   # SpriteAnimationSystem
+    ├── Title/       # TitleOverlay, TitleSystem, TitleExitSystem
+    └── GameOver/    # GameOverOverlay, GameOverAd & 関連System
 ```

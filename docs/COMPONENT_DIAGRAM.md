@@ -281,6 +281,27 @@ classDiagram
     
     GridLine ..|> Component : implements
     
+    %% ===== Obstacle Components =====
+    class Obstacle {
+    }
+    
+    class ObstacleWobble {
+        -float baseX
+        -float amplitude
+        -float omega
+        -float phase
+        -float t
+        +getBaseX() float
+        +getAmplitude() float
+        +getOmega() float
+        +getPhase() float
+        +getT() float
+        +addTime(float)
+    }
+    
+    Obstacle ..|> Component : implements
+    ObstacleWobble ..|> Component : implements
+    
     %% ===== Cursor Components =====
     class CursorView {
         +render(Graphics)
@@ -367,8 +388,10 @@ classDiagram
 - **PlayerView**: プレイヤー描画
 - **Level**: レベル情報
 - **Wall**: 障害物（演算タイプ、値、レーン）
-- **LaneTransform/Velocity/Size**: レーン座標系
+- **LaneTransform/Velocity/Size/FixedPosition**: レーン座標系
 - **GridLine**: グリッド線
+- **Obstacle**: 障害物マーカー
+- **ObstacleWobble**: 障害物の左右往復動作
 - **CursorView/GlobalCursorModel**: カーソル
 - **DamageEffect/PowerUpEffect**: エフェクト
 - **Easing**: イージングアニメーション
